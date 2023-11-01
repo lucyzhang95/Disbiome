@@ -127,7 +127,7 @@ def get_association(content_dict, keys):
 def load_disbiome_data():
     """load data from Disbiome Experiment database
     10837 records originally in Disbiome Experiment data
-    10742 records have ncbi_taxid and 365 records do not
+    10742 records have ncbi_taxid and 95 records do not
     8420 records without duplicated out_put dictionary _id
     ncbi_taxid: 1535 without duplicates
     meddra_id: 322 without duplicates, 46 meddra_id are mapped to MONDO (276 has no mapping)
@@ -206,4 +206,4 @@ def load_disbiome_data():
 
         else:
             no_taxid.append({f"{js['experiment_id']}": js["organism_name"]})
-            print(no_taxid)
+    # print(no_taxid)
