@@ -105,8 +105,9 @@ Some of due to the organism cluster (a group of organisms), some due to taxonomy
 <details>
   <summary>Click to expand!</summary>
 
-merged.dmp file:
-Merged nodes file fields:
+merged.dmp file: <br>
+
+```Merged nodes file fields:```
 
 	old_tax_id                              -- id of nodes which has been merged
 	new_tax_id                              -- id of nodes which is result of merging
