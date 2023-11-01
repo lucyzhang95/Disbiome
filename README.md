@@ -6,8 +6,8 @@ Parse the data from Disbiome database in order to include in the potential Biolo
 - 10742 records in the output total with 2322 records with duplicated _id
 - 95 records do not have taxid (10837 - 10742 = 95)
 - 8420 records without duplicated output_dict _id
-- meddra_id: 322 without duplicates (46 meddra_id are mapped to MONDO, 276 has no mapping)
-- ncbi_taxid: 1535 without duplicates
+- meddra_id: 322 unique meddra_id (46 meddra_id are mapped to MONDO, 276 has no mapping)
+- ncbi_taxid: 1535 unique taxid value
 
 
 ## Output Example:
