@@ -205,5 +205,11 @@ def load_disbiome_data():
                 yield output_dict
 
         else:
-            no_taxid.append({f"{js['experiment_id']}": js["organism_name"]})
+            no_taxid.append(
+                {
+                    "Experiment_id": js["experiment_id"],
+                    "organism": js["organism_name"],
+                    "disease": js["disease_name"],
+                }
+            )
     # print(no_taxid)
