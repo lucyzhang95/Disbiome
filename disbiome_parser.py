@@ -1,9 +1,9 @@
-import json
-import re
-import pathlib
-import glob
-import os
 import csv
+import glob
+import json
+import os
+import pathlib
+import re
 import uuid
 
 import biothings_client
@@ -120,7 +120,7 @@ def get_publication():
         if pubmed_url:
             pub_dict = {
                 "publication_id": pub["publication_id"],
-                "title": pub["title"]
+                "title": pub["title"],
             }
             pub_all.update({pub_dict["publication_id"]: pub_dict})
             # some pubmed_url have pmid and some have pmcid in it, some don't follow those rules at all
@@ -154,7 +154,7 @@ def get_association(content_dict, keys):
     """
     association = {
         "predicate": "OrganismalEntityAsAModelOfDiseaseAssociation",
-        "qualifier": content_dict["qualitative_outcome"].lower()
+        "qualifier": content_dict["qualitative_outcome"].lower(),
     }
 
     for key in keys:
@@ -203,7 +203,12 @@ def load_disbiome_data():
 
     meddra_ids = set([str(js["meddra_id"]) for js in exp_content])
     mapping_info = combine_meddra_mappings(meddra_ids)
-    meddra_mappings = {k.split(":")[1]: mapping for obj_l in mapping_info for mapping in obj_l for k, v in mapping.items()}
+    meddra_mappings = {
+        k.split(":")[1]: mapping
+        for obj_l in mapping_info
+        for mapping in obj_l
+        for k, v in mapping.items()
+    }
 
     # get publication information
     pub_data = get_publication()
@@ -214,7 +219,7 @@ def load_disbiome_data():
             subject_node = {
                 "id": f"taxid:{str(js['organism_ncbi_id'])}",
                 "organism_name": js["organism_name"].lower(),
-                "type": "biolink:OrganismalEntity"
+                "type": "biolink:OrganismalEntity",
             }
             for taxon in taxons:
                 update_subject_node(subject_node, taxon)
@@ -222,20 +227,22 @@ def load_disbiome_data():
         else:
             subject_node = {
                 "organism_name": js["organism_name"].lower(),
-                "type": "biolink:OrganismalEntity"
+                "type": "biolink:OrganismalEntity",
             }
 
         object_node = {
             "name": js["disease_name"].lower(),
-            "type": "biolink:Disease"
+            "type": "biolink:Disease",
         }
 
         if js["meddra_id"]:
-            object_node.update({
-                "id": None,
-                "meddra_id": str(js["meddra_id"]),
-                "meddra_level": js["meddra_level"],
-            })
+            object_node.update(
+                {
+                    "id": None,
+                    "meddra_id": str(js["meddra_id"]),
+                    "meddra_level": js["meddra_level"],
+                }
+            )
 
             if object_node["meddra_id"] in bt_disease:
                 mondo_id = bt_disease[object_node["meddra_id"]]
@@ -245,15 +252,26 @@ def load_disbiome_data():
                 # dict ex. {'10002026': {'MedDRA:10002026': 'EFO:0000253'}}
                 key = f"MedDRA:{object_node['meddra_id']}"
                 # return 'EFO' from 'EFO:0000253'
-                id_key = meddra_mappings[object_node["meddra_id"]][key].split(":")[0]
+                id_key = meddra_mappings[object_node["meddra_id"]][key].split(
+                    ":"
+                )[0]
                 # return 'EFO:0000253'
-                object_node["id"] = meddra_mappings[object_node["meddra_id"]][key]
+                object_node["id"] = meddra_mappings[object_node["meddra_id"]][
+                    key
+                ]
                 # return '0000253' from 'EFO:0000253'
-                object_node[id_key] = meddra_mappings[object_node["meddra_id"]][key].split(":")[1]
+                object_node[id_key] = meddra_mappings[
+                    object_node["meddra_id"]
+                ][key].split(":")[1]
             else:
                 object_node["id"] = f"meddra:{object_node['meddra_id']}"
 
-            js_keys = ["sample_name", "method_name", "host_type", "control_name"]
+            js_keys = [
+                "sample_name",
+                "method_name",
+                "host_type",
+                "control_name",
+            ]
             association = get_association(js, js_keys)
 
             # n1 = subject_node["organism_name"].split(" ")[0]
