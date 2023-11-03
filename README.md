@@ -13,45 +13,46 @@ Parse the data from Disbiome database in order to include in the potential Biolo
 ## Output Example:
 ```ruby
 {
-    "_id":"207244_OrganismalEntityAsAModelOfDiseaseAssociation_10028245",
-    "edge":"anaerostipes_associated_with_multiple_sclerosis",
+    "_id":"e44e6b852420495cb815004e725f53a3",
     "association":{
         "predicate":"OrganismalEntityAsAModelOfDiseaseAssociation",
         "qualifier":"reduced",
-        "method":"16S rRNA sequencing",
-        "sample_name":"faeces",
-        "host_type":"human",
-        "control_name":"healthy control"
+        "sample_name":"faeces"
     },
     "object":{
-        "meddra_id":"10028245",
-        "name":"multiple sclerosis",
+        "name":"pulmonary arterial hypertension",
+        "type":"biolink:Disease",
+        "id":"MONDO:0005149",
+        "meddra_id":"10037400",
         "meddra_level":"preferred_term",
-        "id":"10028245"
+        "mondo":"0005149"
     },
     "subject":{
-        "id":"207244",
-        "organism_name":"anaerostipes",
-        "scientific_name":"anaerostipes",
-        "parent_taxid":186803,
+        "id":"taxid:310298",
+        "organism_name":"bacteroides coprocola",
+        "type":"biolink:OrganismalEntity",
+        "scientific_name":"phocaeicola coprocola",
+        "parent_taxid":909656,
         "lineage":[
-            207244,
-            186803,
-            186802,
-            186801,
-            1239,
-            1783272,
+            310298,
+            909656,
+            815,
+            171549,
+            200643,
+            976,
+            68336,
+            1783270,
             2,
             131567,
             1
         ],
-        "rank":"genus"
+        "rank":"species"
     },
     "publications":{
-        "publication_id":1220,
-        "title":"Alterations of host-gut microbiome interactions in multiple sclerosis",
-        "pubmed_url":"https://pubmed.ncbi.nlm.nih.gov/35094961/",
-        "pmid":"35094961"
+        "publication_id":1097,
+        "title":"Altered gut microbiome profile in patients with pulmonary arterial hypertension",
+        "pmid":"32088998",
+        "doi":"10.1161/HYPERTENSIONAHA.119.14294"
     }
 }
 ```
