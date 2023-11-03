@@ -89,8 +89,8 @@ def update_subject_node(subject_node, bt_taxon):
     :param bt_taxon: a dictionary with ncbi organism taxon info retrieved from biothings_client
     :return: an updated dictionary with info from both Disbiome and biothings_client
     """
-    if subject_node["id"] in bt_taxon:
-        taxon_info = bt_taxon[subject_node["id"]]
+    if subject_node["id"].split(":")[1] in bt_taxon:
+        taxon_info = bt_taxon[subject_node["id"].split(":")[1]]
         new_taxon_keys = ["scientific_name", "parent_taxid", "lineage", "rank"]
         for key in new_taxon_keys:
             subject_node[key] = taxon_info.get(key)
@@ -159,8 +159,11 @@ def get_association(content_dict, keys):
 
     for key in keys:
         if content_dict[key]:
-            association[key] = content_dict[key].lower()
-    return association
+            if key == "method_name":
+                association[key] = content_dict[key]
+            else:
+                association[key] = content_dict[key].lower()
+                return association
 
 
 def load_disbiome_data():
@@ -257,7 +260,7 @@ def load_disbiome_data():
             # n2 = object_node["name"].replace(" ", "_")
             for pub in publications:
                 output_dict = {
-                    "_id": uuid.uuid4(),
+                    "_id": str(uuid.uuid4().hex),
                     # "edge": f"{n1}_associated_with_{n2}",
                     "association": association,
                     "object": object_node,
