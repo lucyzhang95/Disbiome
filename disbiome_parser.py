@@ -19,12 +19,8 @@ def get_taxon_info(_ids):
     """
     _ids = set(_ids)
     t = biothings_client.get_client("taxon")
-    taxon_info = t.gettaxa(
-        _ids, fields=["scientific_name", "parent_taxid", "lineage", "rank"]
-    )
-    taxon_info = {
-        t["query"]: t for t in taxon_info if "notfound" not in t.keys()
-    }
+    taxon_info = t.gettaxa(_ids, fields=["scientific_name", "parent_taxid", "lineage", "rank"])
+    taxon_info = {t["query"]: t for t in taxon_info if "notfound" not in t.keys()}
     yield taxon_info
 
 
@@ -41,11 +37,7 @@ def get_mondo_doid_id(meddra_ids):
         scopes=["mondo.xrefs.meddra", "disease_ontology.xrefs.meddra"],
         fields=["mondo.xrefs.meddra", "disease_ontology.doid"],
     )
-    query_op = {
-        d["query"]: d.get("_id")
-        for d in query_op
-        if "notfound" not in query_op
-    }
+    query_op = {d["query"]: d.get("_id") for d in query_op if "notfound" not in query_op}
     yield query_op
 
 
@@ -189,9 +181,7 @@ def load_disbiome_data():
     # convert the generator object to a list
     taxons = list(bt_taxon)
 
-    bt_disease = get_mondo_doid_id(
-        js["meddra_id"] for js in exp_content if js["meddra_id"]
-    )
+    bt_disease = get_mondo_doid_id(js["meddra_id"] for js in exp_content if js["meddra_id"])
 
     # remove the None mondo dictionary values
     bt_disease = {
@@ -252,17 +242,11 @@ def load_disbiome_data():
                 # dict ex. {'10002026': {'MedDRA:10002026': 'EFO:0000253'}}
                 key = f"MedDRA:{object_node['meddra_id']}"
                 # return 'EFO' from 'EFO:0000253'
-                id_key = meddra_mappings[object_node["meddra_id"]][key].split(
-                    ":"
-                )[0]
+                id_key = meddra_mappings[object_node["meddra_id"]][key].split(":")[0]
                 # return 'EFO:0000253'
-                object_node["id"] = meddra_mappings[object_node["meddra_id"]][
-                    key
-                ]
+                object_node["id"] = meddra_mappings[object_node["meddra_id"]][key]
                 # return '0000253' from 'EFO:0000253'
-                object_node[id_key] = meddra_mappings[
-                    object_node["meddra_id"]
-                ][key].split(":")[1]
+                object_node[id_key] = meddra_mappings[object_node["meddra_id"]][key].split(":")[1]
             else:
                 object_node["id"] = f"meddra:{object_node['meddra_id']}"
 
