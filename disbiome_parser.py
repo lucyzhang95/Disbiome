@@ -1,5 +1,10 @@
 import json
 import re
+import pathlib
+import glob
+import os
+import csv
+import uuid
 
 import biothings_client
 import requests
@@ -34,7 +39,7 @@ def get_mondo_doid_id(meddra_ids):
     query_op = d.querymany(
         meddra_ids,
         scopes=["mondo.xrefs.meddra", "disease_ontology.xrefs.meddra"],
-        fields="mondo.xrefs.meddra",
+        fields=["mondo.xrefs.meddra", "disease_ontology.doid"],
     )
     query_op = {
         d["query"]: d.get("_id")
@@ -42,6 +47,37 @@ def get_mondo_doid_id(meddra_ids):
         if "notfound" not in query_op
     }
     yield query_op
+
+
+def meddra_id_mapping(path, meddra_ids):
+    mapped = []
+    with open(path, "r") as f:
+        reader = csv.reader(f, delimiter="\t")
+        next(reader, None)
+        for data in reader:
+            meddra_id = data[0].split(":")[1]
+            if meddra_id in meddra_ids:
+                mapped.append({data[0]: data[2]})
+    # print(f"Total mapped meddra_ids: {len(mapped)}", mapped)
+    yield mapped
+
+
+def get_mapping_info():
+    path = os.path.join(pathlib.Path.cwd(), "mappings/")
+    assert path
+    files = glob.glob(f"{path}*.tsv")
+    yield files
+
+
+def combine_meddra_mappings(meddra_ids):
+    files = get_mapping_info()
+    combined_mappings = []
+    for obj in files:
+        for mapping_dict in obj:
+            mappings = meddra_id_mapping(mapping_dict, meddra_ids)
+            for mapping in mappings:
+                combined_mappings.extend(mapping)
+    yield combined_mappings
 
 
 def update_subject_node(subject_node, bt_taxon):
@@ -73,34 +109,38 @@ def get_publication():
     pub_all = {}
     for pub in pub_content:
         pubmed_url = pub.get("pubmed_url")
-        if pubmed_url is None:
+        doi = pub.get("doi")
+
+        pub_dict = {
+            "publication_id": pub["publication_id"],
+            "title": pub["title"],
+        }
+        pub_all.update({pub_dict["publication_id"]: pub_dict})
+
+        if pubmed_url:
             pub_dict = {
                 "publication_id": pub["publication_id"],
-                "title": pub["title"],
+                "title": pub["title"]
             }
             pub_all.update({pub_dict["publication_id"]: pub_dict})
-            # print(f"No pubmed_url: publication_id: {pub['publication_id']}, {pub['title']}.")
-        else:
             # some pubmed_url have pmid and some have pmcid in it, some don't follow those rules at all
             # "pubmed_url": "https://www.ncbi.nlm.nih.gov/pubmed/25446201"
             # "pubmed_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4646740/"
             pmid_match = re.match(r".*?\/(\d+)", pubmed_url)
             pmcid_match = re.match(r".*?(PMC)(\d+)", pubmed_url)
-            pub_dict = {
-                "publication_id": pub["publication_id"],
-                "title": pub["title"],
-            }
             if pmcid_match:
-                pub_dict["pubmed_url"] = pub["pubmed_url"]
                 pub_dict["pmcid"] = pmcid_match.groups()[1]
                 pub_all.update({pub_dict["publication_id"]: pub_dict})
             elif pmid_match:
-                pub_dict["pubmed_url"] = pub["pubmed_url"]
                 pub_dict["pmid"] = pmid_match.groups()[0]
                 pub_all.update({pub_dict["publication_id"]: pub_dict})
             else:
                 pub_dict["pubmed_url"] = pub["pubmed_url"]
                 pub_all.update({pub_dict["publication_id"]: pub_dict})
+        if doi:
+            pub_dict["doi"] = pub["doi"]
+            pub_all.update({pub_dict["publication_id"]: pub_dict})
+
     yield pub_all
 
 
@@ -114,8 +154,7 @@ def get_association(content_dict, keys):
     """
     association = {
         "predicate": "OrganismalEntityAsAModelOfDiseaseAssociation",
-        "qualifier": content_dict["qualitative_outcome"].lower(),
-        "method": content_dict["method_name"],
+        "qualifier": content_dict["qualitative_outcome"].lower()
     }
 
     for key in keys:
@@ -159,44 +198,67 @@ def load_disbiome_data():
         if mondo
     }
 
+    meddra_ids = set([str(js["meddra_id"]) for js in exp_content])
+    mapping_info = combine_meddra_mappings(meddra_ids)
+    meddra_mappings = {k.split(":")[1]: mapping for obj_l in mapping_info for mapping in obj_l for k, v in mapping.items()}
+
+    # get publication information
     pub_data = get_publication()
     publications = list(pub_data)
 
-    no_taxid = []
     for js in exp_content:
         if js["organism_ncbi_id"]:
             subject_node = {
-                "id": str(js["organism_ncbi_id"]),
+                "id": f"taxid:{str(js['organism_ncbi_id'])}",
                 "organism_name": js["organism_name"].lower(),
+                "type": "biolink:OrganismalEntity"
             }
-
             for taxon in taxons:
                 update_subject_node(subject_node, taxon)
 
-            object_node = {
-                "meddra_id": str(js["meddra_id"]),
-                "name": js["disease_name"].lower(),
-                "meddra_level": js["meddra_level"],
+        else:
+            subject_node = {
+                "organism_name": js["organism_name"].lower(),
+                "type": "biolink:OrganismalEntity"
             }
 
-            if object_node["meddra_id"] in bt_disease:
-                mondo_id = bt_disease[object_node["meddra_id"]].split(":")[1]
-                object_node["id"] = mondo_id
-                object_node["mondo"] = mondo_id
-            else:
-                object_node["id"] = object_node["meddra_id"]
+        object_node = {
+            "name": js["disease_name"].lower(),
+            "type": "biolink:Disease"
+        }
 
-            js_keys = ["sample_name", "host_type", "control_name"]
+        if js["meddra_id"]:
+            object_node.update({
+                "id": None,
+                "meddra_id": str(js["meddra_id"]),
+                "meddra_level": js["meddra_level"],
+            })
+
+            if object_node["meddra_id"] in bt_disease:
+                mondo_id = bt_disease[object_node["meddra_id"]]
+                object_node["id"] = mondo_id
+                object_node["mondo"] = mondo_id.split(":")[1]
+            elif object_node["meddra_id"] in meddra_mappings:
+                # dict ex. {'10002026': {'MedDRA:10002026': 'EFO:0000253'}}
+                key = f"MedDRA:{object_node['meddra_id']}"
+                # return 'EFO' from 'EFO:0000253'
+                id_key = meddra_mappings[object_node["meddra_id"]][key].split(":")[0]
+                # return 'EFO:0000253'
+                object_node["id"] = meddra_mappings[object_node["meddra_id"]][key]
+                # return '0000253' from 'EFO:0000253'
+                object_node[id_key] = meddra_mappings[object_node["meddra_id"]][key].split(":")[1]
+            else:
+                object_node["id"] = f"meddra:{object_node['meddra_id']}"
+
+            js_keys = ["sample_name", "method_name", "host_type", "control_name"]
             association = get_association(js, js_keys)
 
-            n1 = subject_node["organism_name"].split(" ")[0]
-            n2 = object_node["name"].replace(" ", "_")
-            predicate = "OrganismalEntityAsAModelOfDiseaseAssociation"
-
+            # n1 = subject_node["organism_name"].split(" ")[0]
+            # n2 = object_node["name"].replace(" ", "_")
             for pub in publications:
                 output_dict = {
-                    "_id": f"{subject_node['id']}_{predicate}_{object_node['id']}",
-                    "edge": f"{n1}_associated_with_{n2}",
+                    "_id": uuid.uuid4(),
+                    # "edge": f"{n1}_associated_with_{n2}",
                     "association": association,
                     "object": object_node,
                     "subject": subject_node,
@@ -204,12 +266,6 @@ def load_disbiome_data():
                 }
                 yield output_dict
 
-        else:
-            no_taxid.append(
-                {
-                    "Experiment_id": js["experiment_id"],
-                    "organism": js["organism_name"],
-                    "disease": js["disease_name"],
-                }
-            )
-    # print(no_taxid)
+
+for data in load_disbiome_data():
+    print(data)
