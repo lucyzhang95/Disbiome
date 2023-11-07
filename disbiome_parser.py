@@ -5,6 +5,7 @@ import os
 import pathlib
 import re
 import uuid
+from collections import defaultdict
 
 import biothings_client
 import requests
@@ -34,42 +35,61 @@ def get_mondo_doid_id(meddra_ids):
     d = biothings_client.get_client("disease")
     query_op = d.querymany(
         meddra_ids,
-        scopes=["mondo.xrefs.meddra", "disease_ontology.xrefs.meddra"],
-        fields=["mondo.xrefs.meddra", "disease_ontology.doid"],
+        scopes=["mondo.xrefs.meddra"],
+        fields=["mondo.xrefs.meddra"],
     )
     query_op = {d["query"]: d.get("_id") for d in query_op if "notfound" not in query_op}
     yield query_op
 
 
-def meddra_id_mapping(path, meddra_ids):
-    mapped = []
-    with open(path, "r") as f:
-        reader = csv.reader(f, delimiter="\t")
-        next(reader, None)
-        for data in reader:
-            meddra_id = data[0].split(":")[1]
-            if meddra_id in meddra_ids:
-                mapped.append({data[0]: data[2]})
-    # print(f"Total mapped meddra_ids: {len(mapped)}", mapped)
-    yield mapped
+def get_meddra_mapping(files, meddra_ids):
+    """map the disbiome meddra_ids to doid, efo, hp, and orphanet ids
+
+    :param files: /Disbiome/mappings/*.tsv
+    :param meddra_ids: a set of meddra_ids retrieved from disbiome experiment database
+    :return: a list of mapped meddra_id:doid, efo, hp, and orphanet id pairs
+             e.g. [{'10002026': 'Orphanet:803'}, {'10016207': 'Orphanet:342'}, ...]
+    """
+    mapped_l = []
+    for file in files:
+        with open(file, "r") as f:
+            reader = csv.reader(f, delimiter="\t")
+            next(reader, None)
+            for data in reader:
+                meddra_id = data[0].split(":")[1]
+                if meddra_id in meddra_ids:
+                    mapped_l.append({meddra_id: data[2]})
+    yield mapped_l
 
 
-def get_mapping_info():
+def get_mapping_files():
+    """fetch the meddra_id mappings files downloaded from
+    https://www.ebi.ac.uk/spot/oxo/datasources/MedDRA
+    include mappings between meddra_ids to doid, efo, hp, and orphanet
+    files: /Disbiome/mappings/*.tsv
+
+    :return: a list of file paths
+    """
     path = os.path.join(pathlib.Path.cwd(), "mappings/")
-    assert path
     files = glob.glob(f"{path}*.tsv")
+    assert files
     yield files
 
 
-def combine_meddra_mappings(meddra_ids):
-    files = get_mapping_info()
-    combined_mappings = []
-    for obj in files:
-        for mapping_dict in obj:
-            mappings = meddra_id_mapping(mapping_dict, meddra_ids)
-            for mapping in mappings:
-                combined_mappings.extend(mapping)
-    yield combined_mappings
+def meddra_mapping_dict(meddra_id):
+    """convert the mapping list to a dict with meddra_id as key and other id list as value
+
+    :param meddra_id: a set of meddra_ids retrieved from disbiome experiment database
+    :return: a defaultdict e.g. defaultdict(<class 'list'>, {'10002026': ['Orphanet:803', 'EFO:0000253'], ...}
+    """
+    mapping_dict = defaultdict(list)
+    for files in get_mapping_files():
+        obj = get_meddra_mapping(files, meddra_id)
+        for mapping_l in obj:
+            for mapping in mapping_l:
+                for k, v in mapping.items():
+                    mapping_dict[k].append(v)
+    yield mapping_dict
 
 
 def update_subject_node(subject_node, bt_taxon):
@@ -132,7 +152,6 @@ def get_publication():
         if doi:
             pub_dict["doi"] = pub["doi"]
             pub_all.update({pub_dict["publication_id"]: pub_dict})
-
     yield pub_all
 
 
@@ -146,16 +165,18 @@ def get_association(content_dict, keys):
     """
     association = {
         "predicate": "OrganismalEntityAsAModelOfDiseaseAssociation",
+        "type": "biolink:Publication",
         "qualifier": content_dict["qualitative_outcome"].lower(),
     }
 
     for key in keys:
-        if content_dict[key]:
-            if key == "method_name":
-                association[key] = content_dict[key]
-            else:
-                association[key] = content_dict[key].lower()
-                return association
+        if key in content_dict:
+            if content_dict[key]:
+                if key == "method_name":
+                    association[key] = content_dict[key]
+                else:
+                    association[key] = content_dict[key].lower()
+    return association
 
 
 def load_disbiome_data():
@@ -191,14 +212,8 @@ def load_disbiome_data():
         if mondo
     }
 
-    meddra_ids = set([str(js["meddra_id"]) for js in exp_content])
-    mapping_info = combine_meddra_mappings(meddra_ids)
-    meddra_mappings = {
-        k.split(":")[1]: mapping
-        for obj_l in mapping_info
-        for mapping in obj_l
-        for k, v in mapping.items()
-    }
+    meddra_ids = set([str(js["meddra_id"]) for js in exp_content if js["meddra_id"]])
+    meddra_mappings = {k: v for d in meddra_mapping_dict(meddra_ids) for k, v in d.items()}
 
     # get publication information
     pub_data = get_publication()
@@ -239,38 +254,33 @@ def load_disbiome_data():
                 object_node["id"] = mondo_id
                 object_node["mondo"] = mondo_id.split(":")[1]
             elif object_node["meddra_id"] in meddra_mappings:
-                # dict ex. {'10002026': {'MedDRA:10002026': 'EFO:0000253'}}
-                key = f"MedDRA:{object_node['meddra_id']}"
-                # return 'EFO' from 'EFO:0000253'
-                id_key = meddra_mappings[object_node["meddra_id"]][key].split(":")[0]
-                # return 'EFO:0000253'
-                object_node["id"] = meddra_mappings[object_node["meddra_id"]][key]
-                # return '0000253' from 'EFO:0000253'
-                object_node[id_key] = meddra_mappings[object_node["meddra_id"]][key].split(":")[1]
+                # meddra_mappings e.g.{'10002026': ['Orphanet:803', 'EFO:0000253'],...}
+                # value: ['Orphanet:803', 'EFO:0000253']
+                value = meddra_mappings[object_node["meddra_id"]]
+                object_node["id"] = value[0]
+                object_node[value[0].split(":")[0].lower()] = value[0].split(":")[1]
+                if 1 < len(meddra_mappings[object_node["meddra_id"]]) < 3:
+                    object_node[value[1].split(":")[0].lower()] = value[1].split(":")[1]
             else:
-                object_node["id"] = f"meddra:{object_node['meddra_id']}"
+                object_node["id"] = f"MedDRA:{object_node['meddra_id']}"
 
-            js_keys = [
-                "sample_name",
-                "method_name",
-                "host_type",
-                "control_name",
-            ]
-            association = get_association(js, js_keys)
+        js_keys = [
+            "sample_name",
+            "method_name",
+            "host_type",
+            "control_name",
+        ]
+        association = get_association(js, js_keys)
 
-            # n1 = subject_node["organism_name"].split(" ")[0]
-            # n2 = object_node["name"].replace(" ", "_")
-            for pub in publications:
-                output_dict = {
-                    "_id": str(uuid.uuid4().hex),
-                    # "edge": f"{n1}_associated_with_{n2}",
-                    "association": association,
-                    "object": object_node,
-                    "subject": subject_node,
-                    "publications": pub[js["publication_id"]],
-                }
-                yield output_dict
-
-
-for data in load_disbiome_data():
-    print(data)
+        # n1 = subject_node["organism_name"].split(" ")[0]
+        # n2 = object_node["name"].replace(" ", "_")
+        for pub in publications:
+            output_dict = {
+                "_id": str(uuid.uuid4().hex),
+                # "edge": f"{n1}_associated_with_{n2}",
+                "association": association,
+                "object": object_node,
+                "subject": subject_node,
+                "publications": pub[js["publication_id"]],
+            }
+            yield output_dict
