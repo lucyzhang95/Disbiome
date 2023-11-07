@@ -13,46 +13,46 @@ Parse the data from Disbiome database in order to include in the potential Biolo
 ## Output Example:
 ```ruby
 {
-    "_id":"e44e6b852420495cb815004e725f53a3",
+    "_id":"fc7f58c4e2504e4cbd975b422759a070",
     "association":{
         "predicate":"OrganismalEntityAsAModelOfDiseaseAssociation",
         "qualifier":"reduced",
-        "sample_name":"faeces"
+        "sample_name":"saliva",
+        "method_name":"16S rDNA ",
+        "host_type":"human",
+        "control_name":"healthy control"
     },
     "object":{
-        "name":"pulmonary arterial hypertension",
+        "name":"palmoplantar pustulosis",
         "type":"biolink:Disease",
-        "id":"MONDO:0005149",
-        "meddra_id":"10037400",
-        "meddra_level":"preferred_term",
-        "mondo":"0005149"
+        "id":"MONDO:0015597",
+        "meddra_id":"10050185",
+        "meddra_level":"low_level_term",
+        "mondo":"0015597"
     },
     "subject":{
-        "id":"taxid:310298",
-        "organism_name":"bacteroides coprocola",
+        "id":"taxid:482",
+        "organism_name":"neisseria",
         "type":"biolink:OrganismalEntity",
-        "scientific_name":"phocaeicola coprocola",
-        "parent_taxid":909656,
+        "scientific_name":"neisseria",
+        "parent_taxid":481,
         "lineage":[
-            310298,
-            909656,
-            815,
-            171549,
-            200643,
-            976,
-            68336,
-            1783270,
+            482,
+            481,
+            206351,
+            28216,
+            1224,
             2,
             131567,
             1
         ],
-        "rank":"species"
+        "rank":"genus"
     },
     "publications":{
-        "publication_id":1097,
-        "title":"Altered gut microbiome profile in patients with pulmonary arterial hypertension",
-        "pmid":"32088998",
-        "doi":"10.1161/HYPERTENSIONAHA.119.14294"
+        "publication_id":1210,
+        "title":"Dysbiosis of oral microbiota associated with palmoplantar pustulosis",
+        "pmid":"33279897",
+        "doi":"10.1159/000511622"
     }
 }
 ```
