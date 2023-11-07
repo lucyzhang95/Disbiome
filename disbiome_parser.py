@@ -6,12 +6,13 @@ import pathlib
 import re
 import uuid
 from collections import defaultdict
+from collections.abc import Iterator
 
 import biothings_client
 import requests
 
 
-def get_taxon_info(_ids):
+def get_taxon_info(_ids: Iterator[list]) -> Iterator[dict]:
     """retrieve ncbi taxonomy information from biothings_client
     taxonomy information includes "scientific_name", "parent_taxid", "lineage", and "rank"
 
@@ -25,7 +26,7 @@ def get_taxon_info(_ids):
     yield taxon_info
 
 
-def get_mondo_doid_id(meddra_ids):
+def get_mondo_doid_id(meddra_ids: Iterator[list]) -> Iterator[dict]:
     """retrieve mapped mondo or disease ontology id with meddra_id
 
     :param meddra_ids: a set of meddra_ids (diseases) obtained from Disbiome Experiment database "meddra_id"
@@ -42,7 +43,7 @@ def get_mondo_doid_id(meddra_ids):
     yield query_op
 
 
-def get_meddra_mapping(files, meddra_ids):
+def get_meddra_mapping(files: str | pathlib.Path, meddra_ids: list) -> Iterator[list]:
     """map the disbiome meddra_ids to doid, efo, hp, and orphanet ids
 
     :param files: /Disbiome/mappings/*.tsv
@@ -62,7 +63,7 @@ def get_meddra_mapping(files, meddra_ids):
     yield mapped_l
 
 
-def get_mapping_files():
+def get_mapping_files() -> Iterator[str | pathlib.Path]:
     """fetch the meddra_id mappings files downloaded from
     https://www.ebi.ac.uk/spot/oxo/datasources/MedDRA
     include mappings between meddra_ids to doid, efo, hp, and orphanet
@@ -76,7 +77,7 @@ def get_mapping_files():
     yield files
 
 
-def meddra_mapping_dict(meddra_id):
+def meddra_mapping_dict(meddra_id: list | set[str]) -> Iterator[defaultdict]:
     """convert the mapping list to a dict with meddra_id as key and other id list as value
 
     :param meddra_id: a set of meddra_ids retrieved from disbiome experiment database
@@ -92,7 +93,7 @@ def meddra_mapping_dict(meddra_id):
     yield mapping_dict
 
 
-def update_subject_node(subject_node, bt_taxon):
+def update_subject_node(subject_node: dict, bt_taxon: dict):
     """update the subject_node dictionary with the info from biothings_client taxon info
     old keys: "organism_ncbi_id", "organism_name"
     new keys: "scientific_name", "parent_taxid", "lineage", "rank"
@@ -108,7 +109,7 @@ def update_subject_node(subject_node, bt_taxon):
             subject_node[key] = taxon_info.get(key)
 
 
-def get_publication():
+def get_publication() -> Iterator[dict]:
     """retrieve publication relevant information regarding the Disbiome experiment data
     from https://disbiome.ugent.be:8080/publication
 
@@ -155,7 +156,7 @@ def get_publication():
     yield pub_all
 
 
-def get_association(content_dict, keys):
+def get_association(content_dict, keys) -> dict:
     """create association dictionary with different key contents
     some json objects from Disbiome do not have "sample_name", "host_type", or "control_name"
 
@@ -179,7 +180,7 @@ def get_association(content_dict, keys):
     return association
 
 
-def load_disbiome_data():
+def load_disbiome_data() -> Iterator[dict]:
     """load data from Disbiome Experiment database
     10837 records originally in Disbiome Experiment data
     10742 records have ncbi_taxid and 95 records do not
@@ -276,7 +277,7 @@ def load_disbiome_data():
         # n2 = object_node["name"].replace(" ", "_")
         for pub in publications:
             output_dict = {
-                "_id": str(uuid.uuid4().hex),
+                "_id": str(uuid.uuid4().hex),  # generate random uuid
                 # "edge": f"{n1}_associated_with_{n2}",
                 "association": association,
                 "object": object_node,
