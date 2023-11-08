@@ -11,7 +11,8 @@ Parse the data from Disbiome database in order to include in the potential Biolo
 - {'MedDRA': 5009, 'EFO': 4529, 'MONDO': 928, 'Orphanet': 217, 'HP': 14}
 - ncbi_taxid: 1535 unique taxid value
 - ncbi_taxid rank types: 10,617 records with rank + 220 no rank keys = 10,837 records
-- {'species': 5099, 'genus': 4509, 'family': 721, 'phylum': 161, 'order': 58, 'class': 43, 'strain': 14, 'no rank': 6, 'subspecies': 4, 'clade': 2}
+- Number of records: {'species': 5099, 'genus': 4509, 'family': 721, 'phylum': 161, 'order': 58, 'class': 43, 'strain': 14, 'no rank': 6, 'subspecies': 4, 'clade': 2}
+- Number of unique organism in different ranks: {'species': 768, 'genus': 604, 'family': 119, 'phylum': 17, 'order': 15, 'class': 7, 'strain': 3, 'no rank': 5, 'subspecies': 3, 'clade': 2}
 - Publications: 10,837 records (19 records do not have doi/pmid/pmcid/url publication info )
 - {'publication_id': 10837, 'title': 10837, 'doi': 10590, 'pmid': 10031, 'pmcid': 573, 'pubmed_url': 192}
   
