@@ -1,7 +1,7 @@
 # Disbiome_data
 Parse the data from Disbiome database in order to include in the potential Biological Knowledge Graph
 
-## Data Summary:
+## Data Summary: (11/08/2023)
 - 10,837 total records in Disbiome
 - 10,837 total records in the output
 - 95 records do not have taxid (10837 - 10742 = 95)
