@@ -4,7 +4,8 @@ import json
 import os
 import pathlib
 import re
-import uuid
+
+# import uuid
 from collections import defaultdict
 from collections.abc import Iterator
 
@@ -134,6 +135,7 @@ def get_publication() -> Iterator[dict]:
             pub_dict = {
                 "publication_id": pub["publication_id"],
                 "title": pub["title"],
+                "type": "biolink:Publication",
             }
             pub_all.update({pub_dict["publication_id"]: pub_dict})
             # some pubmed_url have pmid and some have pmcid in it, some don't follow those rules at all
@@ -166,7 +168,6 @@ def get_association(content_dict, keys) -> dict:
     """
     association = {
         "predicate": "OrganismalEntityAsAModelOfDiseaseAssociation",
-        "type": "biolink:Publication",
         "qualifier": content_dict["qualitative_outcome"].lower(),
     }
 
@@ -277,7 +278,7 @@ def load_disbiome_data() -> Iterator[dict]:
         # n2 = object_node["name"].replace(" ", "_")
         for pub in publications:
             output_dict = {
-                "_id": str(uuid.uuid4().hex),  # generate random uuid
+                # "_id": str(uuid.uuid4().hex),  # generate random uuid
                 # "edge": f"{n1}_associated_with_{n2}",
                 "association": association,
                 "object": object_node,
