@@ -183,10 +183,12 @@ Disbiome Experiment Data: <br>
 	</details>
 
 2. Obtain pmid/pmcid/doi for the weird pubmed_url format of 192 records in Disbiome
+   - can use [ncbi eutils package](https://www.ncbi.nlm.nih.gov/books/NBK25500/) to get the pubmed_id from these urls
+   - make sure to return one specific paper from the query result
 
    Example: `"pubmed_url": "https://www.ncbi.nlm.nih.gov/pubmed?term=(Community%20dynamics%20and%20the%20lower%20airway%20microbiota%20in%20stable%20chronic%20obstructive%20pulmonary%20disease%2C%20smokers%20and%20healthy%20non-smokers.)"`
 
-3. Figure out what is the best hierarchy of the microorganism to use for the subsequent analyses.
+4. Figure out what is the best hierarchy of the microorganism to use for the subsequent analyses.
 
 ![The Hierarchy of Bacteria](https://atlasbiomed.com/blog/content/images/2021/06/2020-06-05-Taxonomy.png)
    - For example, I have `Eubacterium rectale` and its NCBI blast name is `firmicutes`, where it shows a classification of several clades of bacteria that are gram-positive with a low DNA mol% G+C and have rigid cells walls containing muramic acid. In theory, these bacteria should have some conserved proteins or pathways that are associated with certain disease. It could be easier to calculate similarity scores. 
