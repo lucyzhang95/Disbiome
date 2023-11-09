@@ -1,63 +1,72 @@
 # Disbiome_data
 Parse the data from Disbiome database in order to include in the potential Biological Knowledge Graph
 
-## Data Summary:
-- 10837 records originally in Disbiome
-- 10742 records in the output total with 2322 records with duplicated _id
+## Data Summary: (11/08/2023)
+- 10,837 total records in Disbiome
+- 10,837 total records in the output
 - 95 records do not have taxid (10837 - 10742 = 95)
-- 8420 records without duplicated output_dict _id
-- meddra_id: 322 unique meddra_id (46 meddra_id are mapped to MONDO, 276 has no mapping)
+- meddra_id: 323 total - 1 None value  = 322 unique meddra_id
+- meddra_id: 46 mapped to MONDO, 2 mapped to Human Phenotype (HP), 1 to Disease Ontology (DOID), 81 to The Experimental Factor Ontology (EFO), 8 to Orphanet rare disease, and 184 meddra_ids
+- Disease: 10,697 records with ontology IDs + 140 no ontology IDs = 10,837 records
+- {'MedDRA': 5009, 'EFO': 4529, 'MONDO': 928, 'Orphanet': 217, 'HP': 14}
 - ncbi_taxid: 1535 unique taxid value
-
+- ncbi_taxid rank types: 10,617 records with rank + 220 no rank keys = 10,837 records
+- Number of records: {'species': 5099, 'genus': 4509, 'family': 721, 'phylum': 161, 'order': 58, 'class': 43, 'strain': 14, 'no rank': 6, 'subspecies': 4, 'clade': 2}
+- Number of unique organism in different ranks: {'species': 768, 'genus': 604, 'family': 119, 'phylum': 17, 'order': 15, 'class': 7, 'strain': 3, 'no rank': 5, 'subspecies': 3, 'clade': 2}
+- Publications: 10,837 records (19 records do not have doi/pmid/pmcid/url publication info )
+- {'publication_id': 10837, 'title': 10837, 'doi': 10590, 'pmid': 10031, 'pmcid': 573, 'pubmed_url': 192}
+  
 
 ## Output Example:
 ```ruby
 {
-    "_id":"fc7f58c4e2504e4cbd975b422759a070",
     "association":{
         "predicate":"OrganismalEntityAsAModelOfDiseaseAssociation",
         "qualifier":"reduced",
-        "sample_name":"saliva",
-        "method_name":"16S rDNA ",
+        "sample_name":"faeces",
+        "method_name":"Shotgun sequencing",
         "host_type":"human",
         "control_name":"healthy control"
     },
     "object":{
-        "name":"palmoplantar pustulosis",
+        "name":"pulmonary arterial hypertension",
         "type":"biolink:Disease",
-        "id":"MONDO:0015597",
-        "meddra_id":"10050185",
-        "meddra_level":"low_level_term",
-        "mondo":"0015597"
+        "id":"MONDO:0005149",
+        "meddra_id":"10037400",
+        "meddra_level":"preferred_term",
+        "mondo":"0005149"
     },
     "subject":{
-        "id":"taxid:482",
-        "organism_name":"neisseria",
+        "id":"taxid:45851",
+        "organism_name":"butyrivibrio crossotus",
         "type":"biolink:OrganismalEntity",
-        "scientific_name":"neisseria",
-        "parent_taxid":481,
+        "scientific_name":"butyrivibrio crossotus",
+        "parent_taxid":830,
         "lineage":[
-            482,
-            481,
-            206351,
-            28216,
-            1224,
+            45851,
+            830,
+            186803,
+            186802,
+            186801,
+            1239,
+            1783272,
             2,
             131567,
             1
         ],
-        "rank":"genus"
+        "rank":"species"
     },
     "publications":{
-        "publication_id":1210,
-        "title":"Dysbiosis of oral microbiota associated with palmoplantar pustulosis",
-        "pmid":"33279897",
-        "doi":"10.1159/000511622"
+        "publication_id":1097,
+        "title":"Altered gut microbiome profile in patients with pulmonary arterial hypertension",
+        "type":"biolink:Publication",
+        "pmid":"32088998",
+        "doi":"10.1161/HYPERTENSIONAHA.119.14294"
     }
 }
 ```
 
-## Records do not have pubmed_url:
+## Records missing publication info:
 - 9 records do not have pubmed_url
 
 <details>
@@ -75,8 +84,20 @@ Parse the data from Disbiome database in order to include in the potential Biolo
 
 </details>
 
-## Records with duplicated _id:
+- 19 records do not have any publication info (only have paper title)
 
+<details>
+<summary>Click to expand!</summary>
+
+```
+[{'publication_id': 58, 'title': "Alterations of the subgingival microbiota in pediatric Crohn's Disease studied longitudinally in discovery and validation cohorts."}, {'publication_id': 188, 'title': 'Increased archaea species and changes with therapy in gut microbiome of multiple sclerosis subjects.'}, {'publication_id': 217, 'title': 'The oral microflora in obesity and type-2 diabetes'}, {'publication_id': 554, 'title': 'The nasopharyngeal microbiota in patients with viral respiratory tract infections is enriched in bacterial pathogens'}, {'publication_id': 650, 'title': 'Dandruff is associated with disequilibrium in the proportion of the major bacterial and fungal populations colonizing the scalp'}, {'publication_id': 942, 'title': 'The sinonasal mycobiota in chronic rhinosinusitis and control patients'}]
+```
+
+</details>
+
+## Records with same association between microbe and disease but based on different samples and publications:
+
+For example:
 - Same _id but different samples
 
 <details>
@@ -116,9 +137,7 @@ merged.dmp file: <br>
 </details>
 
 ### Details of records do not have ncbi_taxids
-#### The bacterial cluster information is very important for the subsequent analysis, so it's better to keep them in some format with the associations between the group and disease.
 #### If I can find out the specific species in the group, and then add in the information, it will be really helpful.
-#### TODO: find species in different Clostridia clusters. [EZBioCloud](https://help.ezbiocloud.net/taxonomy-of-clostridium-cluster-xiva-iv/) mentions the species in Clostridum clusters XIVa and IV.
 
 <details>
   <summary>Click to expand!</summary>
@@ -133,3 +152,42 @@ Disbiome Experiment Data: <br>
 ```
 
 </details>
+
+## TODO: 
+1. Find species in different Clostridia clusters.
+- [EZBioCloud](https://help.ezbiocloud.net/taxonomy-of-clostridium-cluster-xiva-iv/) mentions the species in Clostridum clusters XIVa and IV.
+- I have found another [source](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6656338/#sup1) with bacterial species in different Clostridum clusters. The .docx file can be downloaded [here](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6656338/bin/supplementary_matrial_evz096.docx). I might need to map the organism name to the Disbiome organims_name or write a new function using biothings_client to map it, so that I can use for other data sources. <br>
+
+	The .docx file looks like:
+	
+	<details>
+	  <summary>Click to expand!</summary>
+
+   	```
+	
+	Organism name	Completeness1	Clostridial cluster2	Contigs	Length	N503	L504
+	Clostridium_acetobutylicum_ATCC_824_2	98.03	I	2	4132880	3940880	1
+	Clostridium_acetobutylicum_DSM_1731_61	98.03	I	3	4145581	3942462	1
+	Clostridium_acetobutylicum_DSM_1732_527	98.43	I	55	4091215	270881	6
+	Clostridium_acetobutylicum_EA_2018_57	98.03	I	2	4132226	3940230	1
+	Clostridium_acetobutylicum_GXAS18_1_231	98.43	I	49	3796049	325351	4
+	Clostridium_acetobutylicum_NCCB_24020_525	98.82	I	20	4098731	759218	2
+	Clostridium_stercorarium_sub. thermolacticum_DSM2910_441	98.03	III	1	3035622	2970010	1
+	Clostridium_termitidis_CT1112_89	98.43	III	78	6415858	146289	15
+	Clostridium_leptum_DSM_753_25	97.64	iv /XIVa	21	3270209	452649	4
+	Clostridium_sporosphaeroides_DSM_1294_VPI_4527_111	97.24	IV/XIVa	21	3174421	324437	4
+	Clostridioides_difficile_VL_0092_988	98.82	XIa	321	4157070	90393	16
+   	```
+	
+	</details>
+
+2. Obtain pmid/pmcid/doi for the weird pubmed_url format of 192 records in Disbiome
+
+   Example: `"pubmed_url": "https://www.ncbi.nlm.nih.gov/pubmed?term=(Community%20dynamics%20and%20the%20lower%20airway%20microbiota%20in%20stable%20chronic%20obstructive%20pulmonary%20disease%2C%20smokers%20and%20healthy%20non-smokers.)"`
+
+3. Figure out what is the best hierarchy of the microorganism to use for the subsequent analyses.
+
+![The Hierarchy of Bacteria](https://atlasbiomed.com/blog/content/images/2021/06/2020-06-05-Taxonomy.png)
+   - For example, I have `Eubacterium rectale` and its NCBI blast name is `firmicutes`, where it shows a classification of several clades of bacteria that are gram-positive with a low DNA mol% G+C and have rigid cells walls containing muramic acid. In theory, these bacteria should have some conserved proteins or pathways that are associated with certain disease. It could be easier to calculate similarity scores. 
+
+
