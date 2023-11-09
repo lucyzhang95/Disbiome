@@ -20,46 +20,48 @@ Parse the data from Disbiome database in order to include in the potential Biolo
 ## Output Example:
 ```ruby
 {
-    "_id":"fc7f58c4e2504e4cbd975b422759a070",
     "association":{
         "predicate":"OrganismalEntityAsAModelOfDiseaseAssociation",
         "qualifier":"reduced",
-        "sample_name":"saliva",
-        "method_name":"16S rDNA ",
+        "sample_name":"faeces",
+        "method_name":"Shotgun sequencing",
         "host_type":"human",
         "control_name":"healthy control"
     },
     "object":{
-        "name":"palmoplantar pustulosis",
+        "name":"pulmonary arterial hypertension",
         "type":"biolink:Disease",
-        "id":"MONDO:0015597",
-        "meddra_id":"10050185",
-        "meddra_level":"low_level_term",
-        "mondo":"0015597"
+        "id":"MONDO:0005149",
+        "meddra_id":"10037400",
+        "meddra_level":"preferred_term",
+        "mondo":"0005149"
     },
     "subject":{
-        "id":"taxid:482",
-        "organism_name":"neisseria",
+        "id":"taxid:45851",
+        "organism_name":"butyrivibrio crossotus",
         "type":"biolink:OrganismalEntity",
-        "scientific_name":"neisseria",
-        "parent_taxid":481,
+        "scientific_name":"butyrivibrio crossotus",
+        "parent_taxid":830,
         "lineage":[
-            482,
-            481,
-            206351,
-            28216,
-            1224,
+            45851,
+            830,
+            186803,
+            186802,
+            186801,
+            1239,
+            1783272,
             2,
             131567,
             1
         ],
-        "rank":"genus"
+        "rank":"species"
     },
     "publications":{
-        "publication_id":1210,
-        "title":"Dysbiosis of oral microbiota associated with palmoplantar pustulosis",
-        "pmid":"33279897",
-        "doi":"10.1159/000511622"
+        "publication_id":1097,
+        "title":"Altered gut microbiome profile in patients with pulmonary arterial hypertension",
+        "type":"biolink:Publication",
+        "pmid":"32088998",
+        "doi":"10.1161/HYPERTENSIONAHA.119.14294"
     }
 }
 ```
