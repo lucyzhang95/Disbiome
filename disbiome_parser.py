@@ -285,4 +285,14 @@ def load_disbiome_data() -> Iterator[dict]:
                 "subject": subject_node,
                 "publications": pub[js["publication_id"]],
             }
+
+            # change the key sample_name to biospecimen_samples
+            if "sample_name" in output_dict["association"]:
+                output_dict["association"]["biospecimen_samples"] = output_dict["association"]["sample_name"]
+                del output_dict["association"]["sample_name"]
             yield output_dict
+
+
+data = load_disbiome_data()
+for obj in data:
+    print(obj)
