@@ -291,8 +291,3 @@ def load_disbiome_data() -> Iterator[dict]:
                 output_dict["association"]["biospecimen_samples"] = output_dict["association"]["sample_name"]
                 del output_dict["association"]["sample_name"]
             yield output_dict
-
-
-data = load_disbiome_data()
-for obj in data:
-    print(obj)
