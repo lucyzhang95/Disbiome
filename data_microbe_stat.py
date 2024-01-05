@@ -21,6 +21,8 @@ def convert_to_int(val):
 with open("disbiome_output.pkl", "rb") as handle:
     data = pickle.load(handle)
     df = pd.json_normalize(data)
+
+    # export microbes related info to csv file
     microbe_col = ["subject.scientific_name", "subject.taxid", "subject.lineage", "subject.parent_taxid", "subject.rank"]
     microbe_df = df[microbe_col].copy()
     microbe_df.rename(columns={"subject.scientific_name": "scientific_name",
@@ -33,3 +35,19 @@ with open("disbiome_output.pkl", "rb") as handle:
     microbe_df[col_to_convert] = microbe_df[col_to_convert].apply(convert_to_int)
     microbe_df["rank"] = microbe_df["rank"].replace('', pd.NA)
     microbe_df.to_csv("disbiome_microbes.csv")
+
+    # export microbe-disease pairs to csv file
+    micro_dis_col = ["subject.scientific_name", "subject.taxid",
+                     "object.name", "object.mondo",
+                     "association.qualifier"]
+    micro_dis_df = df[micro_dis_col].copy()
+    micro_dis_df.rename(columns={"subject.scientific_name": "scientific_name",
+                                 "subject.taxid": "taxid",
+                                 "object.name": "object_name",
+                                 "object.mondo": "mondo",
+                                 "association.qualifier": "qualifier"},
+                        inplace=True)
+    micro_dis_df[["taxid"]] = micro_dis_df[["taxid"]].apply(convert_to_int)
+    micro_dis_df.to_csv("disbiome_microbe_disease.csv")
+
+
