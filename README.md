@@ -24,7 +24,7 @@ Parse the data from Disbiome database in order to include in the potential Biolo
     "association":{
         "predicate":"OrganismalEntityAsAModelOfDiseaseAssociation",
         "qualifier":"reduced",
-        "sample_name":"faeces",
+        "biospecimen_samples":"faeces",
         "method_name":"Shotgun sequencing",
         "host_type":"human",
         "control_name":"healthy control"
