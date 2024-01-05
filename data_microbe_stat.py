@@ -35,7 +35,7 @@ with open("disbiome_output.pkl", "rb") as handle:
     microbe_df[col_to_convert] = microbe_df[col_to_convert].apply(convert_to_int)
     microbe_df["rank"] = microbe_df["rank"].replace('', pd.NA)
     microbe_df["scientific_name"] = microbe_df["scientific_name"].str.capitalize()
-    microbe_df.to_csv("disbiome_microbes.csv")
+    microbe_df.to_csv("disbiome_microbes.csv", index=False)
 
     # export microbe-disease pairs to csv file
     micro_dis_col = ["subject.scientific_name", "subject.taxid",
@@ -50,6 +50,6 @@ with open("disbiome_output.pkl", "rb") as handle:
                         inplace=True)
     micro_dis_df[["taxid"]] = micro_dis_df[["taxid"]].apply(convert_to_int)
     micro_dis_df["scientific_name"] = micro_dis_df["scientific_name"].str.capitalize()
-    micro_dis_df.to_csv("disbiome_microbe_disease.csv")
+    micro_dis_df.to_csv("disbiome_microbe_disease.csv", index=False)
 
 
