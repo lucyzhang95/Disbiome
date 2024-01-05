@@ -225,6 +225,7 @@ def load_disbiome_data() -> Iterator[dict]:
         if js["organism_ncbi_id"]:
             subject_node = {
                 "id": f"taxid:{str(js['organism_ncbi_id'])}",
+                "taxid": js["organism_ncbi_id"],
                 "organism_name": js["organism_name"].lower(),
                 "type": "biolink:OrganismalEntity",
             }
