@@ -39,6 +39,7 @@ Parse the data from Disbiome database in order to include in the potential Biolo
     },
     "subject":{
         "id":"taxid:45851",
+	"taxid":45851,
         "organism_name":"butyrivibrio crossotus",
         "type":"biolink:OrganismalEntity",
         "scientific_name":"butyrivibrio crossotus",
