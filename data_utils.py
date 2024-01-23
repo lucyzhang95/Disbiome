@@ -17,9 +17,16 @@ import numpy as np
 def convert_to_int(val):
     return pd.to_numeric(val, errors='coerce').astype('Int64')
 
-
+count_unique_microbe_disease_pair = []
 with open("disbiome_output.pkl", "rb") as handle:
     data = pickle.load(handle)
+
+    for d in data:
+        if "scientific_name" in d["subject"]:
+            pair = f"{d['subject']['scientific_name']}-{d['object']['name']}"
+            count_unique_microbe_disease_pair.append(pair)
+
+
     df = pd.json_normalize(data)
 
     # export microbes related info to csv file
@@ -52,4 +59,4 @@ with open("disbiome_output.pkl", "rb") as handle:
     micro_dis_df["scientific_name"] = micro_dis_df["scientific_name"].str.capitalize()
     micro_dis_df.to_csv("disbiome_microbe_disease.csv", index=False)
 
-
+print(f"Unique_microbe_disease_pair: {len(set(count_unique_microbe_disease_pair))}")
