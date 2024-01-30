@@ -64,6 +64,7 @@ class DataManipulation:
                     "parent_taxid": d["subject"]["parent_taxid"],
                 }
                 lineage_rank_data.append(microbe_d)
+        print(f"Number of records in mapped lineage data: {len(lineage_rank_data)}")
 
         for rank_d in lineage_rank_data:
             for taxid in rank_d["lineage"]:
@@ -78,31 +79,35 @@ class DataManipulation:
         return lineage_rank_data
 
 
-def export_lineage_rank_to_csv(lineage_rank_data):
-    df = pd.json_normalize(lineage_rank_data)
-    df = df.drop(
-        columns=[
-            "subclass",
-            "superfamily",
-            "superorder",
-            "infraclass",
-            "kingdom",
-            "subphylum",
-            "strain",
-            "subspecies",
-            "suborder",
-            "subfamily",
-            "subkingdom",
-            "section",
-            "subgenus",
-            "tribe",
-            "species subgroup",
-            "no rank",
-            "species group",
-        ]
-    )
-    df.to_csv("data/disbiome_microbes_with_taxonomy_filtered.csv", index=False)
-    return df
+class ExportData():
+    def __init__(self, lineage_rank_data):
+        self.lineage_rank_data = lineage_rank_data
+
+    def export_lineage_rank_to_csv(self, output_path):
+        df = pd.json_normalize(self.lineage_rank_data)
+        df = df.drop(
+            columns=[
+                "subclass",
+                "superfamily",
+                "superorder",
+                "infraclass",
+                "kingdom",
+                "subphylum",
+                "strain",
+                "subspecies",
+                "suborder",
+                "subfamily",
+                "subkingdom",
+                "section",
+                "subgenus",
+                "tribe",
+                "species subgroup",
+                "no rank",
+                "species group",
+            ]
+        )
+        df.to_csv(output_path, index=False)
+        return df
 
 
 #     # export microbe-disease pairs to csv file
@@ -141,4 +146,8 @@ if __name__ == "__main__":
 
     mapped_taxids = manipulation.map_lineage_taxids()
     rank_info = manipulation.get_lineage_rank_data(mapped_taxids)
-    print(export_lineage_rank_to_csv(rank_info))
+    # print(rank_info)
+
+    export = ExportData(rank_info)
+    taxonomy = export.export_lineage_rank_to_csv("data/disbiome_microbes_with_taxonomy_filtered.csv")
+
