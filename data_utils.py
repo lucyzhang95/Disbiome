@@ -126,6 +126,8 @@ class ExportData:
                     if d["subject"]["taxid"] in lineage_rank:
                         pair_d.update(lineage_rank[d["subject"]["taxid"]])
                         op_d.append(pair_d)
+                if "qualifier" in d["association"]:
+                    pair_d["qualifier"] = d["association"]["qualifier"]
         print(f"Number of microbe-disease record: {len(op_d)}")
 
         df = pd.json_normalize(op_d)
