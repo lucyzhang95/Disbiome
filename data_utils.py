@@ -79,7 +79,7 @@ class DataManipulation:
         return lineage_rank_data
 
 
-class ExportData():
+class ExportData:
     def __init__(self, lineage_rank_data):
         self.lineage_rank_data = lineage_rank_data
 
@@ -149,5 +149,6 @@ if __name__ == "__main__":
     # print(rank_info)
 
     export = ExportData(rank_info)
-    taxonomy = export.export_lineage_rank_to_csv("data/disbiome_microbes_with_taxonomy_filtered.csv")
-
+    taxonomy = export.export_lineage_rank_to_csv(
+        "data/disbiome_microbes_with_taxonomy_filtered.csv"
+    )
