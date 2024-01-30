@@ -1,9 +1,10 @@
-from disbiome_parser import load_disbiome_data
 import os
 import pickle
 
-import pandas as pd
 import biothings_client
+import pandas as pd
+
+from disbiome_parser import load_disbiome_data
 
 
 class SaveData:
@@ -16,14 +17,14 @@ class SaveData:
         parser_op = []
         for obj in self.disbiome_data:
             parser_op.append(obj)
-        with open(output_path, 'wb') as handle:
+        with open(output_path, "wb") as handle:
             pickle.dump(parser_op, handle, protocol=pickle.HIGHEST_PROTOCOL)
         return parser_op
 
 
 class DataManipulation:
     def __init__(self, input_path):
-        with open(input_path, 'rb') as handle:
+        with open(input_path, "rb") as handle:
             self.disbiome_data = pickle.load(handle)
 
     def count_node_pair(self, node1, node2, node_str1, node_str2):
@@ -52,26 +53,54 @@ class DataManipulation:
     def get_lineage_rank_data(self, mapped_lineage_taxids):
         lineage_rank_data = []
         for d in self.disbiome_data:
-            if "taxid" in d["subject"] and "lineage" in d["subject"] and "parent_taxid" in d["subject"]:
+            if (
+                "taxid" in d["subject"]
+                and "lineage" in d["subject"]
+                and "parent_taxid" in d["subject"]
+            ):
                 microbe_d = {
                     "taxid": d["subject"]["taxid"],
                     "lineage": d["subject"]["lineage"],
-                    "parent_taxid": d["subject"]["parent_taxid"]
+                    "parent_taxid": d["subject"]["parent_taxid"],
                 }
                 lineage_rank_data.append(microbe_d)
 
         for rank_d in lineage_rank_data:
             for taxid in rank_d["lineage"]:
                 if taxid in mapped_lineage_taxids:
-                    rank_d.update({mapped_lineage_taxids[taxid]["rank"]: (mapped_lineage_taxids[taxid]["scientific_name"])})
+                    rank_d.update(
+                        {
+                            mapped_lineage_taxids[taxid]["rank"]: (
+                                mapped_lineage_taxids[taxid]["scientific_name"]
+                            )
+                        }
+                    )
         return lineage_rank_data
 
 
 def export_lineage_rank_to_csv(lineage_rank_data):
     df = pd.json_normalize(lineage_rank_data)
-    df = df.drop(columns=["subclass", "superfamily", "superorder", "infraclass", "kingdom", "subphylum", "strain",
-                          "subspecies", "suborder", "subfamily", "subkingdom", "section", "subgenus", "tribe",
-                          "species subgroup", "no rank", "species group"])
+    df = df.drop(
+        columns=[
+            "subclass",
+            "superfamily",
+            "superorder",
+            "infraclass",
+            "kingdom",
+            "subphylum",
+            "strain",
+            "subspecies",
+            "suborder",
+            "subfamily",
+            "subkingdom",
+            "section",
+            "subgenus",
+            "tribe",
+            "species subgroup",
+            "no rank",
+            "species group",
+        ]
+    )
     df.to_csv("data/disbiome_microbes_with_taxonomy_filtered.csv", index=False)
     return df
 
@@ -98,17 +127,18 @@ if __name__ == "__main__":
         disbiome_pkl = data.save_disbiome_data_to_pkl("data/disbiome_output.pkl")
 
     manipulation = DataManipulation("data/disbiome_output.pkl")
-    microbe_disease = manipulation.count_node_pair(node1="subject", node2="object", node_str1="scientific_name", node_str2="name")
-    microbe_sample = manipulation.count_node_pair(node1="subject", node2="association", node_str1="scientific_name", node_str2="biospecimen_samples")
+    microbe_disease = manipulation.count_node_pair(
+        node1="subject", node2="object", node_str1="scientific_name", node_str2="name"
+    )
+    microbe_sample = manipulation.count_node_pair(
+        node1="subject",
+        node2="association",
+        node_str1="scientific_name",
+        node_str2="biospecimen_samples",
+    )
     print(microbe_disease)
     print(microbe_sample)
 
     mapped_taxids = manipulation.map_lineage_taxids()
     rank_info = manipulation.get_lineage_rank_data(mapped_taxids)
     print(export_lineage_rank_to_csv(rank_info))
-
-
-
-
-
-
