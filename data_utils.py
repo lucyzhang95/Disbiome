@@ -83,47 +83,55 @@ class ExportData:
     def __init__(self, lineage_rank_data):
         self.lineage_rank_data = lineage_rank_data
 
-    def export_lineage_rank_to_csv(self, output_path):
+    def drop_columns(self, df):
+        columns_to_drop = [
+            "subclass",
+            "superfamily",
+            "superorder",
+            "infraclass",
+            "kingdom",
+            "subphylum",
+            "strain",
+            "subspecies",
+            "suborder",
+            "subfamily",
+            "subkingdom",
+            "section",
+            "subgenus",
+            "tribe",
+            "species subgroup",
+            "no rank",
+            "species group",
+        ]
+        df = df.drop(columns=columns_to_drop)
+        return df
+
+    def lineage_rank_to_csv(self, output_path):
         df = pd.json_normalize(self.lineage_rank_data)
-        df = df.drop(
-            columns=[
-                "subclass",
-                "superfamily",
-                "superorder",
-                "infraclass",
-                "kingdom",
-                "subphylum",
-                "strain",
-                "subspecies",
-                "suborder",
-                "subfamily",
-                "subkingdom",
-                "section",
-                "subgenus",
-                "tribe",
-                "species subgroup",
-                "no rank",
-                "species group",
-            ]
-        )
+        df = self.drop_columns(df)
         df.to_csv(output_path, index=False)
         return df
 
+    def microbe_disease_to_csv(self, disbiome_data, output_path):
+        lineage_rank = {d["taxid"]: d for d in self.lineage_rank_data}
+        op_d = []
+        with open(disbiome_data, "rb") as handle:
+            disbiome_data = pickle.load(handle)
+            for d in disbiome_data:
+                if "name" in d["object"]:
+                    pair_d = {"disease": d["object"]["name"]}
+                if "biospecimen_samples" in d["association"]:
+                    pair_d["biospecimen_samples"] = d["association"]["biospecimen_samples"]
+                if "taxid" in d["subject"]:
+                    if d["subject"]["taxid"] in lineage_rank:
+                        pair_d.update(lineage_rank[d["subject"]["taxid"]])
+                        op_d.append(pair_d)
+        print(f"Number of microbe-disease record: {len(op_d)}")
 
-#     # export microbe-disease pairs to csv file
-#     micro_dis_col = ["subject.scientific_name", "subject.taxid",
-#                      "object.name", "object.mondo",
-#                      "association.qualifier"]
-#     micro_dis_df = df[micro_dis_col].copy()
-#     micro_dis_df.rename(columns={"subject.scientific_name": "scientific_name",
-#                                  "subject.taxid": "taxid",
-#                                  "object.name": "object_name",
-#                                  "object.mondo": "mondo",
-#                                  "association.qualifier": "qualifier"},
-#                         inplace=True)
-#     micro_dis_df[["taxid"]] = micro_dis_df[["taxid"]].apply(convert_to_int)
-#     micro_dis_df["scientific_name"] = micro_dis_df["scientific_name"].str.capitalize()
-#     micro_dis_df.to_csv("disbiome_microbe_disease.csv", index=False)
+        df = pd.json_normalize(op_d)
+        df = self.drop_columns(df)
+        df.to_csv(output_path, index=False)
+        return df
 
 
 if __name__ == "__main__":
@@ -143,12 +151,12 @@ if __name__ == "__main__":
     )
     print(microbe_disease)
     print(microbe_sample)
-
     mapped_taxids = manipulation.map_lineage_taxids()
     rank_info = manipulation.get_lineage_rank_data(mapped_taxids)
     # print(rank_info)
 
     export = ExportData(rank_info)
-    taxonomy = export.export_lineage_rank_to_csv(
-        "data/disbiome_microbes_with_taxonomy_filtered.csv"
+    taxonomy = export.lineage_rank_to_csv("data/disbiome_microbes_with_taxonomy_filtered.csv")
+    microbe_disease_pair = export.microbe_disease_to_csv(
+        disbiome_data="data/disbiome_output.pkl", output_path="data/disbiome_microbe_disease.csv"
     )
