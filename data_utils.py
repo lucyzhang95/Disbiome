@@ -133,7 +133,9 @@ class ExportData:
         df.to_csv(output_path, index=False)
         return df
 
-    def microbe_disease_to_csv(self, disbiome_data: str | os.PathLike, output_path: str | os.PathLike):
+    def microbe_disease_to_csv(
+        self, disbiome_data: str | os.PathLike, output_path: str | os.PathLike
+    ):
         lineage_rank = {d["taxid"]: d for d in self.lineage_rank_data}
         op_d = []
         with open(disbiome_data, "rb") as handle:
