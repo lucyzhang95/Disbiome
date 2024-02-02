@@ -14,9 +14,12 @@ class SaveData:
         self.disbiome_data = load_disbiome_data()
 
     def save_disbiome_data_to_pkl(self, output_path):
-        parser_op = []
-        for obj in self.disbiome_data:
-            parser_op.append(obj)
+        """
+        Export disbiome data to pickle file
+        :param output_path: "data/disbiome_output.pkl"
+        :return: a list of full disbiome data dictionaries
+        """
+        parser_op = [obj for obj in self.disbiome_data]
         with open(output_path, "wb") as handle:
             pickle.dump(parser_op, handle, protocol=pickle.HIGHEST_PROTOCOL)
         return parser_op
@@ -24,10 +27,22 @@ class SaveData:
 
 class DataManipulation:
     def __init__(self, input_path):
+        """
+        disbiome data from the pkl file
+        :param input_path: "data/disbiome_output.pkl"
+        """
         with open(input_path, "rb") as handle:
             self.disbiome_data = pickle.load(handle)
 
     def count_node_pair(self, node1, node2, node_str1, node_str2):
+        """
+
+        :param node1: string of dictionary key e.g. "object", "subject", "association"
+        :param node2: string of dictionary key e.g. "object", "subject", "association"
+        :param node_str1: string of the keys associated with the first node
+        :param node_str2: string of the keys associated with the second node
+        :return: count of unique pairs between node1 and node2
+        """
         unique_pair = []
         for d in self.disbiome_data:
             if node_str1 in d[node1] and node_str2 in d[node2]:
@@ -37,6 +52,12 @@ class DataManipulation:
         return message
 
     def map_lineage_taxids(self):
+        """
+        Acquire rank and scientific name using the lineage taxids from biothings_client "taxon"
+        input is the disbiome_data taxids
+
+        :return: a dictionary of taxid with its name and rank
+        """
         taxid_lineage = []
         for d in self.disbiome_data:
             if "lineage" in d["subject"]:
