@@ -13,7 +13,7 @@ class SaveData:
     def __init__(self):
         self.disbiome_data = load_disbiome_data()
 
-    def save_disbiome_data_to_pkl(self, output_path):
+    def save_disbiome_data_to_pkl(self, output_path: str | os.PathLike) -> list:
         """
         Export disbiome data to pickle file
         :param output_path: "data/disbiome_output.pkl"
@@ -26,7 +26,7 @@ class SaveData:
 
 
 class DataManipulation:
-    def __init__(self, input_path):
+    def __init__(self, input_path: str | os.PathLike):
         """
         disbiome data from the pkl file
         :param input_path: "data/disbiome_output.pkl"
@@ -34,7 +34,7 @@ class DataManipulation:
         with open(input_path, "rb") as handle:
             self.disbiome_data = pickle.load(handle)
 
-    def count_node_pair(self, node1, node2, node_str1, node_str2):
+    def count_node_pair(self, node1: str, node2: str, node_str1: str, node_str2: str) -> str:
         """
 
         :param node1: string of dictionary key e.g. "object", "subject", "association"
@@ -71,7 +71,7 @@ class DataManipulation:
         lineage_d = {int(t["query"]): t for t in query if "notfound" not in t.keys()}
         return lineage_d
 
-    def get_lineage_rank_data(self, mapped_lineage_taxids):
+    def get_lineage_rank_data(self, mapped_lineage_taxids: dict) -> list:
         lineage_rank_data = []
         for d in self.disbiome_data:
             if (
@@ -101,10 +101,10 @@ class DataManipulation:
 
 
 class ExportData:
-    def __init__(self, lineage_rank_data):
+    def __init__(self, lineage_rank_data: list):
         self.lineage_rank_data = lineage_rank_data
 
-    def drop_columns(self, df):
+    def drop_columns(self, df: pd.DataFrame):
         columns_to_drop = [
             "subclass",
             "superfamily",
@@ -127,13 +127,13 @@ class ExportData:
         df = df.drop(columns=columns_to_drop)
         return df
 
-    def lineage_rank_to_csv(self, output_path):
+    def lineage_rank_to_csv(self, output_path: str | os.PathLike) -> pd.DataFrame:
         df = pd.json_normalize(self.lineage_rank_data)
         df = self.drop_columns(df)
         df.to_csv(output_path, index=False)
         return df
 
-    def microbe_disease_to_csv(self, disbiome_data, output_path):
+    def microbe_disease_to_csv(self, disbiome_data: str | os.PathLike, output_path: str | os.PathLike):
         lineage_rank = {d["taxid"]: d for d in self.lineage_rank_data}
         op_d = []
         with open(disbiome_data, "rb") as handle:
