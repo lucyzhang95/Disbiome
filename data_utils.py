@@ -72,6 +72,12 @@ class DataManipulation:
         return lineage_d
 
     def get_lineage_rank_data(self, mapped_lineage_taxids: dict) -> list:
+        """
+        Map the taxids to their lineage and obtain rank and scientific name
+        Count the number of microbe-disease/biospecimen_samples pairs
+        :param mapped_lineage_taxids: a dictionary of taxid as key and name + rank as values
+        :return: a list of mapped lineage taxids, scientific name and rank
+        """
         lineage_rank_data = []
         for d in self.disbiome_data:
             if (
@@ -105,6 +111,11 @@ class ExportData:
         self.lineage_rank_data = lineage_rank_data
 
     def drop_columns(self, df: pd.DataFrame):
+        """
+        Static method to drop taxonomic rank columns
+        :param df: pandas dataframe with taxonomic lineage taxids, scientific names and ranks
+        :return: pandas dataframe after dropping selected taxonomic ranks
+        """
         columns_to_drop = [
             "subclass",
             "superfamily",
@@ -128,6 +139,11 @@ class ExportData:
         return df
 
     def lineage_rank_to_csv(self, output_path: str | os.PathLike) -> pd.DataFrame:
+        """
+
+        :param output_path:
+        :return:
+        """
         df = pd.json_normalize(self.lineage_rank_data)
         df = self.drop_columns(df)
         df.to_csv(output_path, index=False)
