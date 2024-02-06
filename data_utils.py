@@ -140,9 +140,10 @@ class ExportData:
 
     def lineage_rank_to_csv(self, output_path: str | os.PathLike) -> pd.DataFrame:
         """
-
-        :param output_path:
-        :return:
+        Export the taxonomic lineage rank to csv file
+        with filtered rank columns
+        :param output_path: "data/disbiome_microbes_with_taxonomy_filtered.csv"
+        :return: a pandas dataframe with taxonomic lineage
         """
         df = pd.json_normalize(self.lineage_rank_data)
         df = self.drop_columns(df)
@@ -155,6 +156,13 @@ class ExportData:
     def microbe_disease_to_csv(
         self, disbiome_data: str | os.PathLike, output_path: str | os.PathLike
     ):
+        """
+        Export the taxonomic lineage associated with disease to csv file
+        also with filtered rank columns
+        :param disbiome_data: "data/disbiome_output.pkl"
+        :param output_path: "data/disbiome_microbe_disease.csv"
+        :return:
+        """
         lineage_rank = {d["taxid"]: d for d in self.lineage_rank_data}
         op_d = []
         with open(disbiome_data, "rb") as handle:
@@ -178,19 +186,24 @@ class ExportData:
         df["phylum"] = df["phylum"].str.capitalize()
         df["species"] = df["species"].str.capitalize()
         # underlie the species
-        df['species'] = df['species'].str.replace(' ', '_')
+        df["species"] = df["species"].str.replace(" ", "_")
         df.to_csv(output_path, index=False)
         return df
 
-    def microbe_phyla_to_txt(self, output_path: str | os.PathLike) -> list:
+    def microbe_phyla_species_to_txt(
+        self, species_output_path: str | os.PathLike, phyla_output_path: str | os.PathLike
+    ) -> [list, list]:
         """
         Generate a txt file with species for phyloT newick conversion
-        :param output_path: "data/disbiome_species.txt"
+        Generate a txt file with phyla for phylotree generation with ggtree in R
+        :param species_output_path: "data/disbiome_species.txt"
+        :param phyla_output_path: "data/disbiome_phyla.txt"
         :return: a list of species from disbiome database
         """
         species = self.lineage_rank_data
 
         species_list = []
+        phyla_list = []
         for tax_dict in species:
             if "species" in tax_dict:
                 if tax_dict["species"].startswith("["):
@@ -198,11 +211,16 @@ class ExportData:
                     species_list.append(f"[{genus[1:].capitalize()}]{rest}")
                 else:
                     species_list.append(tax_dict["species"].capitalize())
+            elif "phylum" in tax_dict:
+                phyla_list.append(tax_dict["phylum"].capitalize())
 
-        with open(output_path, "w") as f:
-            for phylum in set(species_list):
+        with open(species_output_path, "w") as f:
+            for species in set(species_list):
+                f.write(species + "\n")
+        with open(phyla_output_path, "w") as f:
+            for phylum in set(phyla_list):
                 f.write(phylum + "\n")
-        return species_list
+        return species_list, phyla_list
 
 
 if __name__ == "__main__":
@@ -231,4 +249,6 @@ if __name__ == "__main__":
     microbe_disease_pair = export.microbe_disease_to_csv(
         disbiome_data="data/disbiome_output.pkl", output_path="data/disbiome_microbe_disease.csv"
     )
-    phyla_data = export.microbe_phyla_to_txt("data/disbiome_species.txt")
+    phyla_data = export.microbe_phyla_species_to_txt(
+        "data/disbiome_species.txt", "data/disbiome_phyla.txt"
+    )
