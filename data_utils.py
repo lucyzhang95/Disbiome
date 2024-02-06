@@ -182,6 +182,28 @@ class ExportData:
         df.to_csv(output_path, index=False)
         return df
 
+    def microbe_phyla_to_txt(self, output_path: str | os.PathLike) -> list:
+        """
+        Generate a txt file with species for phyloT newick conversion
+        :param output_path: "data/disbiome_species.txt"
+        :return: a list of species from disbiome database
+        """
+        species = self.lineage_rank_data
+
+        species_list = []
+        for tax_dict in species:
+            if "species" in tax_dict:
+                if tax_dict["species"].startswith("["):
+                    genus, rest = tax_dict["species"].split("]")
+                    species_list.append(f"[{genus[1:].capitalize()}]{rest}")
+                else:
+                    species_list.append(tax_dict["species"].capitalize())
+
+        with open(output_path, "w") as f:
+            for phylum in set(species_list):
+                f.write(phylum + "\n")
+        return species_list
+
 
 if __name__ == "__main__":
     data = SaveData()
@@ -209,3 +231,4 @@ if __name__ == "__main__":
     microbe_disease_pair = export.microbe_disease_to_csv(
         disbiome_data="data/disbiome_output.pkl", output_path="data/disbiome_microbe_disease.csv"
     )
+    phyla_data = export.microbe_phyla_to_txt("data/disbiome_species.txt")
