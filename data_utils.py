@@ -146,6 +146,9 @@ class ExportData:
         """
         df = pd.json_normalize(self.lineage_rank_data)
         df = self.drop_columns(df)
+        # capitalize the phylum and species column
+        df["phylum"] = df["phylum"].str.capitalize()
+        df["species"] = df["species"].str.capitalize()
         df.to_csv(output_path, index=False)
         return df
 
@@ -171,6 +174,11 @@ class ExportData:
 
         df = pd.json_normalize(op_d)
         df = self.drop_columns(df)
+        # capitalize the phylum and species
+        df["phylum"] = df["phylum"].str.capitalize()
+        df["species"] = df["species"].str.capitalize()
+        # underlie the species
+        df['species'] = df['species'].str.replace(' ', '_')
         df.to_csv(output_path, index=False)
         return df
 
