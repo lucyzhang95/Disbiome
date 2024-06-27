@@ -21,50 +21,50 @@ Parse the data from Disbiome database in order to include in the potential Biolo
 ## Output Example:
 ```ruby
 {
-    "association":{
-        "predicate":"OrganismalEntityAsAModelOfDiseaseAssociation",
-        "qualifier":"reduced",
-        "biospecimen_samples":"faeces",
-        "method_name":"Shotgun sequencing",
-        "host_type":"human",
-        "control_name":"healthy control"
-    },
-    "object":{
-        "name":"pulmonary arterial hypertension",
-        "type":"biolink:Disease",
-        "id":"MONDO:0005149",
-        "meddra_id":"10037400",
-        "meddra_level":"preferred_term",
-        "mondo":"0005149"
-    },
-    "subject":{
-        "id":"taxid:45851",
-	"taxid":45851,
-        "organism_name":"butyrivibrio crossotus",
-        "type":"biolink:OrganismalEntity",
-        "scientific_name":"butyrivibrio crossotus",
-        "parent_taxid":830,
-        "lineage":[
-            45851,
-            830,
-            186803,
-            186802,
-            186801,
-            1239,
-            1783272,
-            2,
-            131567,
-            1
-        ],
-        "rank":"species"
-    },
-    "publications":{
-        "publication_id":1097,
-        "title":"Altered gut microbiome profile in patients with pulmonary arterial hypertension",
-        "type":"biolink:Publication",
-        "pmid":"32088998",
-        "doi":"10.1161/HYPERTENSIONAHA.119.14294"
-    }
+   "association":{
+      "predicate":"OrganismalEntityAsAModelOfDiseaseAssociation",
+      "qualifier":"decreased",
+      "method_name":"Metagenomic sequencing",
+      "host_type":"human",
+      "control_name":"healthy control",
+      "sources":"feces"
+   },
+   "object":{
+      "id":"EFO:1000653",
+      "name":"sarcopenia",
+      "type":"biolink:Disease",
+      "meddra":10063024,
+      "meddra_level":"preferred_term",
+      "efo":"1000653"
+   },
+   "subject":{
+      "id":"taxid:216816",
+      "taxid":216816,
+      "name":"bifidobacterium longum",
+      "type":"biolink:Bacterium",
+      "scientific_name":"bifidobacterium longum",
+      "parent_taxid":1678,
+      "lineage":[
+         216816,
+         1678,
+         31953,
+         85004,
+         1760,
+         201174,
+         1783272,
+         2,
+         131567,
+         1
+      ],
+      "rank":"species"
+   },
+   "publications":{
+      "publication_id":1224,
+      "title":"Bifidobacterium as a Potential Biomarker of Sarcopenia in Elderly Women",
+      "type":"biolink:Publication",
+      "pmcid":"10005572",
+      "doi":"10.3390/nu15051266"
+   }
 }
 ```
 
