@@ -306,7 +306,7 @@ def load_disbiome_data() -> Iterator[dict]:
 
             # change the key sample_name to biospecimen_samples
             if "sample_name" in output_dict["association"]:
-                output_dict["association"]["biospecimen_samples"] = output_dict["association"][
+                output_dict["association"]["sources"] = output_dict["association"][
                     "sample_name"
                 ]
                 del output_dict["association"]["sample_name"]
