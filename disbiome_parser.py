@@ -178,6 +178,12 @@ def get_association(content_dict, keys) -> dict:
                     association[key] = content_dict[key]
                 else:
                     association[key] = content_dict[key].lower()
+
+    if "reduced" in association.get("qualifier", ""):
+        association["qualifier"] = association["qualifier"].replace("reduced", "decrease")
+    if "elevated" in association.get("qualifier", ""):
+        association["qualifier"] = association["qualifier"].replace("elevated", "increase")
+
     return association
 
 
