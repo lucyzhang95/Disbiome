@@ -256,6 +256,7 @@ def load_disbiome_data() -> Iterator[dict]:
             }
 
         object_node = {
+            "id": None,
             "name": js["disease_name"].lower(),
             "type": "biolink:Disease",
         }
@@ -263,7 +264,6 @@ def load_disbiome_data() -> Iterator[dict]:
         if js["meddra_id"]:
             object_node.update(
                 {
-                    "id": None,
                     "meddra": str(js["meddra_id"]),
                     "meddra_level": js["meddra_level"],
                 }
@@ -306,9 +306,7 @@ def load_disbiome_data() -> Iterator[dict]:
 
             # change the key sample_name to biospecimen_samples
             if "sample_name" in output_dict["association"]:
-                output_dict["association"]["sources"] = output_dict["association"][
-                    "sample_name"
-                ]
+                output_dict["association"]["sources"] = output_dict["association"]["sample_name"]
                 del output_dict["association"]["sample_name"]
 
             # biospecimen_samples: replace faeces to feces
@@ -322,3 +320,10 @@ def load_disbiome_data() -> Iterator[dict]:
                 output_dict["object"]["mondo"] = int(output_dict["object"]["mondo"])
 
             yield output_dict
+
+
+# TODO: look at disbiome output
+if __name__ == "__main__":
+    data = load_disbiome_data()
+    for obj in data:
+        print(obj)
