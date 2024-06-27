@@ -238,6 +238,17 @@ def load_disbiome_data() -> Iterator[dict]:
             for taxon in taxons:
                 update_subject_node(subject_node, taxon)
 
+            if "lineage" in subject_node:
+                if 2 in subject_node["lineage"]:
+                    subject_node["type"] = "biolink:Bacterium"
+                elif 10239 in subject_node["lineage"]:
+                    subject_node["type"] = "biolink:Virus"
+                elif 4751 in subject_node["lineage"]:
+                    subject_node["type"] = "biolink:Fungus"
+                elif 2157 in subject_node["lineage"]:
+                    subject_node["type"] = "biolink:Archaea"
+                else:
+                    subject_node["type"] = "biolink:OrganismalEntity"
         else:
             subject_node = {
                 "organism_name": js["organism_name"].lower(),
