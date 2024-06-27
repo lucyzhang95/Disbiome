@@ -310,4 +310,11 @@ def load_disbiome_data() -> Iterator[dict]:
                     "sample_name"
                 ]
                 del output_dict["association"]["sample_name"]
+
+            # convert meddra and mondo values to integer
+            if "meddra" in output_dict["object"]:
+                output_dict["object"]["meddra"] = int(output_dict["object"]["meddra"])
+            if "mondo" in output_dict["object"]:
+                output_dict["object"]["mondo"] = int(output_dict["object"]["mondo"])
+
             yield output_dict
