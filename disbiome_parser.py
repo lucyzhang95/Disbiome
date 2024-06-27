@@ -311,6 +311,10 @@ def load_disbiome_data() -> Iterator[dict]:
                 ]
                 del output_dict["association"]["sample_name"]
 
+            # biospecimen_samples: replace faeces to feces
+            if "faeces" in association.get("sources", ""):
+                association["sources"] = association["sources"].replace("faeces", "feces")
+
             # convert meddra and mondo values to integer
             if "meddra" in output_dict["object"]:
                 output_dict["object"]["meddra"] = int(output_dict["object"]["meddra"])
