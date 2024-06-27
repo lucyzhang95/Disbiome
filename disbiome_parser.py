@@ -232,7 +232,7 @@ def load_disbiome_data() -> Iterator[dict]:
             subject_node = {
                 "id": f"taxid:{str(js['organism_ncbi_id'])}",
                 "taxid": js["organism_ncbi_id"],
-                "organism_name": js["organism_name"].lower(),
+                "name": js["organism_name"].lower(),
                 "type": "biolink:OrganismalEntity",
             }
             for taxon in taxons:
@@ -251,7 +251,7 @@ def load_disbiome_data() -> Iterator[dict]:
                     subject_node["type"] = "biolink:OrganismalEntity"
         else:
             subject_node = {
-                "organism_name": js["organism_name"].lower(),
+                "name": js["organism_name"].lower(),
                 "type": "biolink:OrganismalEntity",
             }
 
@@ -264,25 +264,25 @@ def load_disbiome_data() -> Iterator[dict]:
             object_node.update(
                 {
                     "id": None,
-                    "meddra_id": str(js["meddra_id"]),
+                    "meddra": str(js["meddra_id"]),
                     "meddra_level": js["meddra_level"],
                 }
             )
 
-            if object_node["meddra_id"] in bt_disease:
-                mondo_id = bt_disease[object_node["meddra_id"]]
+            if object_node["meddra"] in bt_disease:
+                mondo_id = bt_disease[object_node["meddra"]]
                 object_node["id"] = mondo_id
                 object_node["mondo"] = mondo_id.split(":")[1]
-            elif object_node["meddra_id"] in meddra_mappings:
+            elif object_node["meddra"] in meddra_mappings:
                 # meddra_mappings e.g.{'10002026': ['Orphanet:803', 'EFO:0000253'],...}
                 # value: ['Orphanet:803', 'EFO:0000253']
-                value = meddra_mappings[object_node["meddra_id"]]
+                value = meddra_mappings[object_node["meddra"]]
                 object_node["id"] = value[0]
                 object_node[value[0].split(":")[0].lower()] = value[0].split(":")[1]
-                if 1 < len(meddra_mappings[object_node["meddra_id"]]) < 3:
+                if 1 < len(meddra_mappings[object_node["meddra"]]) < 3:
                     object_node[value[1].split(":")[0].lower()] = value[1].split(":")[1]
             else:
-                object_node["id"] = f"MedDRA:{object_node['meddra_id']}"
+                object_node["id"] = f"MedDRA:{object_node['meddra']}"
 
         js_keys = [
             "sample_name",
@@ -292,7 +292,7 @@ def load_disbiome_data() -> Iterator[dict]:
         ]
         association = get_association(js, js_keys)
 
-        # n1 = subject_node["organism_name"].split(" ")[0]
+        # n1 = subject_node["name"].split(" ")[0]
         # n2 = object_node["name"].replace(" ", "_")
         for pub in publications:
             output_dict = {
