@@ -313,11 +313,13 @@ def load_disbiome_data() -> Iterator[dict]:
             if "faeces" in association.get("sources", ""):
                 association["sources"] = association["sources"].replace("faeces", "feces")
 
-            # convert meddra and mondo values to integer
+            # convert meddra, mondo and efo values to integer
             if "meddra" in output_dict["object"]:
                 output_dict["object"]["meddra"] = int(output_dict["object"]["meddra"])
             if "mondo" in output_dict["object"]:
                 output_dict["object"]["mondo"] = int(output_dict["object"]["mondo"])
+            if "efo" in output_dict["object"]:
+                output_dict["object"]["efo"] = int(output_dict["object"]["efo"])
 
             yield output_dict
 
