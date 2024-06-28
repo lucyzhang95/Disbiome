@@ -225,10 +225,10 @@ class ExportData:
 
 if __name__ == "__main__":
     data = SaveData()
-    if not os.path.exists("data/disbiome_output.pkl"):
+    if not os.path.exists("../data/disbiome_output.pkl"):
         disbiome_pkl = data.save_disbiome_data_to_pkl("data/disbiome_output.pkl")
 
-    manipulation = DataManipulation("data/disbiome_output.pkl")
+    manipulation = DataManipulation("../data/disbiome_output.pkl")
     microbe_disease = manipulation.count_node_pair(
         node1="subject", node2="object", node_str1="scientific_name", node_str2="name"
     )
@@ -247,7 +247,7 @@ if __name__ == "__main__":
     export = ExportData(rank_info)
     taxonomy = export.lineage_rank_to_csv("data/disbiome_microbes_with_taxonomy_filtered.csv")
     microbe_disease_pair = export.microbe_disease_to_csv(
-        disbiome_data="data/disbiome_output.pkl", output_path="data/disbiome_microbe_disease.csv"
+        disbiome_data="data/disbiome_output.pkl", output_path="../data/disbiome_microbe_disease.csv"
     )
     phyla_data = export.microbe_phyla_species_to_txt(
         "data/disbiome_species.txt", "data/disbiome_phyla.txt"

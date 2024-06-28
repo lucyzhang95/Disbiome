@@ -14,7 +14,7 @@ from networkx.drawing.nx_pydot import graphviz_layout
 from scipy.cluster import hierarchy
 from scipy.cluster.hierarchy import dendrogram, linkage
 
-df = pd.read_csv("data/disbiome_microbe_disease.csv")
+df = pd.read_csv("../data/disbiome_microbe_disease.csv")
 df_disease = df.drop(columns=['taxid', 'lineage', 'parent_taxid', 'biospecimen_samples'])
 df_taxon = df.drop(columns=['disease', 'taxid', 'lineage', 'parent_taxid', 'biospecimen_samples', 'qualifier'])
 
