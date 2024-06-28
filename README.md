@@ -35,7 +35,7 @@ Parse the data from Disbiome database in order to include in the potential Biolo
       "type":"biolink:Disease",
       "meddra":10063024,
       "meddra_level":"preferred_term",
-      "efo":"1000653"
+      "efo":1000653
    },
    "subject":{
       "id":"taxid:216816",
