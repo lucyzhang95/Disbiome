@@ -5,7 +5,7 @@ import os
 import pathlib
 import re
 
-# import uuid
+import uuid
 from collections import defaultdict
 from collections.abc import Iterator
 
@@ -187,7 +187,7 @@ def get_association(content_dict, keys) -> dict:
     return association
 
 
-def load_disbiome_data() -> Iterator[dict]:
+def load_disbiome_data(data_path) -> Iterator[dict]:
     """load data from Disbiome Experiment database
     10837 records originally in Disbiome Experiment data
     10742 records have ncbi_taxid and 95 records do not
@@ -195,6 +195,7 @@ def load_disbiome_data() -> Iterator[dict]:
     ncbi_taxid: 1535 without duplicates
     meddra_id: 322 without duplicates, 46 meddra_id are mapped to MONDO (276 has no mapping)
 
+    :param data_path: **arg for biothings_cli to work
     :return: an iterator of dictionary composed of subject_node, object_node, association_node, and publication_node
     """
     # The experimental and publication data from Disbiome is on a static webpage
@@ -296,7 +297,7 @@ def load_disbiome_data() -> Iterator[dict]:
         # n2 = object_node["name"].replace(" ", "_")
         for pub in publications:
             output_dict = {
-                # "_id": str(uuid.uuid4().hex),  # generate random uuid
+                "_id": str(uuid.uuid4().hex),  # generate random uuid
                 # "edge": f"{n1}_associated_with_{n2}",
                 "association": association,
                 "object": object_node,
