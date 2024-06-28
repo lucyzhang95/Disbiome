@@ -1,0 +1,21 @@
+{
+  "version": "0.3",
+  "__metadata__": {
+    "url": "https://disbiome.ugent.be/home",
+    "description": "Disbiome database"
+  },
+  "display_name": "Disbiome",
+  "biothing_type": "association",
+  "requires": [],
+  "dumper": {
+    "data_url": [
+      "https://disbiome.ugent.be:8080/experiment",
+      "https://disbiome.ugent.be:8080/publication"
+    ],
+    "release": "version:get_release"
+  },
+  "uploader": {
+    "parser": "disbiome_parser:load_disbiome_data",
+    "on_duplicates": "error"
+  }
+}
