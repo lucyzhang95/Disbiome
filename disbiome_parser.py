@@ -324,8 +324,7 @@ def load_disbiome_data() -> Iterator[dict]:
             yield output_dict
 
 
-# TODO: look at disbiome output
-if __name__ == "__main__":
-    data = load_disbiome_data()
-    for obj in data:
-        print(obj)
+# if __name__ == "__main__":
+#     data = load_disbiome_data()
+#     for obj in data:
+#         print(obj)
