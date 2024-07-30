@@ -187,7 +187,7 @@ def get_association(content_dict, keys) -> dict:
     return association
 
 
-def load_disbiome_data(data_path) -> Iterator[dict]:
+def load_disbiome_data() -> Iterator[dict]:
     """load data from Disbiome Experiment database
     10837 records originally in Disbiome Experiment data
     10742 records have ncbi_taxid and 95 records do not
@@ -315,17 +315,22 @@ def load_disbiome_data(data_path) -> Iterator[dict]:
                 association["sources"] = association["sources"].replace("faeces", "feces")
 
             # convert meddra, mondo and efo values to integer
-            if "meddra" in output_dict["object"]:
-                output_dict["object"]["meddra"] = int(output_dict["object"]["meddra"])
-            if "mondo" in output_dict["object"]:
-                output_dict["object"]["mondo"] = int(output_dict["object"]["mondo"])
-            if "efo" in output_dict["object"]:
-                output_dict["object"]["efo"] = int(output_dict["object"]["efo"])
+            # the following codes can remove leading 0s in the conversion step
+            # if "meddra" in output_dict["object"]:
+            #     output_dict["object"]["meddra"] = int(output_dict["object"]["meddra"])
+            # if "mondo" in output_dict["object"]:
+            #     output_dict["object"]["mondo"] = int(output_dict["object"]["mondo"])
+            # if "efo" in output_dict["object"]:
+            #     output_dict["object"]["efo"] = int(output_dict["object"]["efo"])
 
             yield output_dict
 
 
 # if __name__ == "__main__":
 #     data = load_disbiome_data()
-#     for obj in data:
-#         print(obj)
+#     for rec in data:
+#         if rec["object"]["id"]:
+#             if "EFO" in rec["object"]["id"]:
+#                 if rec["object"]["efo"] == "0003885":
+#                     print(rec)
+        # print(obj)
