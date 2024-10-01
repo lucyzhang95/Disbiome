@@ -22,7 +22,9 @@ def get_taxon_info(_ids: Iterator[list]) -> Iterator[dict]:
     """
     _ids = set(_ids)
     t = biothings_client.get_client("taxon")
-    taxon_info = t.gettaxa(_ids, fields=["scientific_name", "parent_taxid", "lineage", "rank"])
+    taxon_info = t.gettaxa(
+        _ids, fields=["scientific_name", "parent_taxid", "lineage", "rank"]
+    )
     taxon_info = {t["query"]: t for t in taxon_info if "notfound" not in t.keys()}
     yield taxon_info
 
@@ -40,7 +42,9 @@ def get_mondo_doid_id(meddra_ids: Iterator[list]) -> Iterator[dict]:
         scopes=["mondo.xrefs.meddra"],
         fields=["mondo.xrefs.meddra"],
     )
-    query_op = {d["query"]: d.get("_id") for d in query_op if "notfound" not in query_op}
+    query_op = {
+        d["query"]: d.get("_id") for d in query_op if "notfound" not in query_op
+    }
     yield query_op
 
 
@@ -180,14 +184,18 @@ def get_association(content_dict, keys) -> dict:
                     association[key] = content_dict[key].lower()
 
     if "reduced" in association.get("qualifier", ""):
-        association["qualifier"] = association["qualifier"].replace("reduced", "decreased")
+        association["qualifier"] = association["qualifier"].replace(
+            "reduced", "decreased"
+        )
     if "elevated" in association.get("qualifier", ""):
-        association["qualifier"] = association["qualifier"].replace("elevated", "increased")
+        association["qualifier"] = association["qualifier"].replace(
+            "elevated", "increased"
+        )
 
     return association
 
 
-def load_disbiome_data() -> Iterator[dict]:
+def load_disbiome_data(data_path: str) -> Iterator[dict]:
     """load data from Disbiome Experiment database
     10837 records originally in Disbiome Experiment data
     10742 records have ncbi_taxid and 95 records do not
@@ -211,7 +219,9 @@ def load_disbiome_data() -> Iterator[dict]:
     # convert the generator object to a list
     taxons = list(bt_taxon)
 
-    bt_disease = get_mondo_doid_id(js["meddra_id"] for js in exp_content if js["meddra_id"])
+    bt_disease = get_mondo_doid_id(
+        js["meddra_id"] for js in exp_content if js["meddra_id"]
+    )
 
     # remove the None mondo dictionary values
     bt_disease = {
@@ -222,7 +232,9 @@ def load_disbiome_data() -> Iterator[dict]:
     }
 
     meddra_ids = set([str(js["meddra_id"]) for js in exp_content if js["meddra_id"]])
-    meddra_mappings = {k: v for d in meddra_mapping_dict(meddra_ids) for k, v in d.items()}
+    meddra_mappings = {
+        k: v for d in meddra_mapping_dict(meddra_ids) for k, v in d.items()
+    }
 
     # get publication information
     pub_data = get_publication()
@@ -307,12 +319,16 @@ def load_disbiome_data() -> Iterator[dict]:
 
             # change the key sample_name to biospecimen_samples
             if "sample_name" in output_dict["association"]:
-                output_dict["association"]["sources"] = output_dict["association"]["sample_name"]
+                output_dict["association"]["sources"] = output_dict["association"][
+                    "sample_name"
+                ]
                 del output_dict["association"]["sample_name"]
 
             # biospecimen_samples: replace faeces to feces
             if "faeces" in association.get("sources", ""):
-                association["sources"] = association["sources"].replace("faeces", "feces")
+                association["sources"] = association["sources"].replace(
+                    "faeces", "feces"
+                )
 
             # convert meddra, mondo and efo values to integer
             # the following codes can remove leading 0s in the conversion step
@@ -333,4 +349,4 @@ def load_disbiome_data() -> Iterator[dict]:
 #             if "EFO" in rec["object"]["id"]:
 #                 if rec["object"]["efo"] == "0003885":
 #                     print(rec)
-        # print(obj)
+# print(obj)
