@@ -3,6 +3,8 @@ import pickle
 
 import biothings_client
 import pandas as pd
+import requests
+import json
 
 from disbiome_parser import load_disbiome_data
 
@@ -24,13 +26,16 @@ class SaveData:
             pickle.dump(parser_op, handle, protocol=pickle.HIGHEST_PROTOCOL)
         return parser_op
 
+    def save_disbiome_data_to_json(self, output_path: str | os.PathLike) -> list:
+        parser_op = [obj for obj in self.disbiome_data]
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(parser_op, f, ensure_ascii=False, indent=4)
+        return parser_op
 
-class DataManipulation:
+
+class Metadata:
     def __init__(self, input_path: str | os.PathLike):
-        """
-        disbiome data from the pkl file
-        :param input_path: "data/disbiome_output.pkl"
-        """
+
         with open(input_path, "rb") as handle:
             self.disbiome_data = pickle.load(handle)
 
@@ -50,6 +55,25 @@ class DataManipulation:
                 unique_pair.append(pair)
         message = f"Number of unique pairs of {node1, node_str1}-{node2, node_str2}: {len(set(unique_pair))}"
         return message
+
+    # def count_category(self, url):
+    #     resp = requests.get(url)
+    #     json_contents = json.loads(resp.content)
+    #
+    #     for methods in json_contents:
+    #
+    #
+    #     print(json_contents)
+
+
+class DataManipulation:
+    def __init__(self, input_path: str | os.PathLike):
+        """
+        disbiome data from the pkl file
+        :param input_path: "data/disbiome_output.pkl"
+        """
+        with open(input_path, "rb") as handle:
+            self.disbiome_data = pickle.load(handle)
 
     def map_lineage_taxids(self):
         """
@@ -224,31 +248,37 @@ class ExportData:
 
 
 if __name__ == "__main__":
-    data = SaveData()
-    if not os.path.exists("../data/disbiome_output.pkl"):
-        disbiome_pkl = data.save_disbiome_data_to_pkl("data/disbiome_output.pkl")
+    # data = SaveData()
+    # disbiome_json= data.save_disbiome_data_to_json("./data/disbiome_data.json")
+    # if not os.path.exists("../data/disbiome_output.pkl"):
+    #     disbiome_pkl = data.save_disbiome_data_to_pkl("data/disbiome_output.pkl")
 
-    manipulation = DataManipulation("../data/disbiome_output.pkl")
-    microbe_disease = manipulation.count_node_pair(
-        node1="subject", node2="object", node_str1="scientific_name", node_str2="name"
-    )
-    microbe_sample = manipulation.count_node_pair(
-        node1="subject",
-        node2="association",
-        node_str1="scientific_name",
-        node_str2="biospecimen_samples",
-    )
-    print(microbe_disease)
-    print(microbe_sample)
-    mapped_taxids = manipulation.map_lineage_taxids()
-    rank_info = manipulation.get_lineage_rank_data(mapped_taxids)
-    # print(rank_info)
+    get_metadata = Metadata("./data/disbiome_output.pkl")
+    # microbe_disease = get_metadata.count_node_pair(
+    #     node1="subject", node2="object", node_str1="scientific_name", node_str2="name"
+    # )
+    # microbe_sample = get_metadata.count_node_pair(
+    #     node1="subject",
+    #     node2="association",
+    #     node_str1="scientific_name",
+    #     node_str2="biospecimen_samples",
+    # )
+    # print(microbe_disease)
+    # print(microbe_sample)
 
-    export = ExportData(rank_info)
-    taxonomy = export.lineage_rank_to_csv("data/disbiome_microbes_with_taxonomy_filtered.csv")
-    microbe_disease_pair = export.microbe_disease_to_csv(
-        disbiome_data="data/disbiome_output.pkl", output_path="../data/disbiome_microbe_disease.csv"
-    )
-    phyla_data = export.microbe_phyla_species_to_txt(
-        "data/disbiome_species.txt", "data/disbiome_phyla.txt"
-    )
+    # method_url = "https://disbiome.ugent.be:8080/method"
+    # count_method = get_metadata.count_category(method_url)
+
+    # manipulation = DataManipulation("../data/disbiome_output.pkl")
+    # mapped_taxids = manipulation.map_lineage_taxids()
+    # rank_info = manipulation.get_lineage_rank_data(mapped_taxids)
+    # # print(rank_info)
+    #
+    # export = ExportData(rank_info)
+    # taxonomy = export.lineage_rank_to_csv("data/disbiome_microbes_with_taxonomy_filtered.csv")
+    # microbe_disease_pair = export.microbe_disease_to_csv(
+    #     disbiome_data="data/disbiome_output.pkl", output_path="../data/disbiome_microbe_disease.csv"
+    # )
+    # phyla_data = export.microbe_phyla_species_to_txt(
+    #     "data/disbiome_species.txt", "data/disbiome_phyla.txt"
+    # )
