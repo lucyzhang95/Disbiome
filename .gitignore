@@ -4,3 +4,13 @@ venv
 data/.DS_Store
 pyproject.toml
 .flake8
+
+.biothings_hub/
+Disbiome_data_batch_1.pick
+__pycache__/
+data/disbiome_data.json
+data/disbiome_newick_expanded.txt
+data/disbiome_phyla.txt
+data/disbiome_species.txt
+data/disbiome_species_remove_(.txt
+plots/
